@@ -1,44 +1,107 @@
-// Java Program to demonstrate
-// JTabbedPane with Labels
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
-// Driver Class
 public class MainGuiPanel {
-            public void run() {
-                // Create a new JFrame (window)
-                JFrame window = new JFrame("Maze Solver - Kobus&Dutkiewicz");
-                ImageIcon img = new ImageIcon("src/gallery/logo.png");
-                window.setIconImage(img.getImage());
-                // Close operation when the window is closed
-                window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close operation when the window is closed
-                // Set the initial size of the window
-                window.setSize(400, 300);
+    private JFrame window;
+    private JPanel mazePanel; // Panel do wyświetlania labiryntu
+    private JTextArea mazeArea; // Obszar tekstowy do pokazywania labiryntu
 
-                // Create a JTabbedPane, which will hold the tabs
-                JTabbedPane tabPanel = new JTabbedPane();
+    public void run() {
+        // Inicjalizacja głównego okna
+        window = new JFrame("Maze Solver - Kobus&Dutkiewicz");
+        ImageIcon img = new ImageIcon("src/gallery/logo.png");
+        window.setIconImage(img.getImage());
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setSize(800, 600);
 
-                // Create the first tab (page1) and add a JLabel to it
-                JPanel page1 = new JPanel();
-                page1.add(new JLabel("This is Tab 1"));
+        // Utworzenie JTabbedPane do przechowywania zakładek
+        JTabbedPane tabPanel = new JTabbedPane();
 
-                // Create the second tab (page2) and add a JLabel to it
-                JPanel page2 = new JPanel();
-                page2.add(new JLabel("This is Tab 2"));
+        // Utworzenie pierwszej zakładki i dodanie etykiety jako symbolu miejsca
+        JPanel page1 = new JPanel();
+        page1.setLayout(new BorderLayout());
+        page1.add(new JLabel("To jest zakładka 1", JLabel.CENTER));
 
-                // Create the third tab (page3) and add a JLabel to it
-                JPanel page3 = new JPanel();
-                page3.add(new JLabel("This is Tab 3"));
+        // Utworzenie drugiej zakładki i dodanie etykiety jako symbolu miejsca
+        JPanel page2 = new JPanel();
+        page2.setLayout(new BorderLayout());
+        page2.add(new JLabel("To jest zakładka 2", JLabel.CENTER));
 
-                // Add the three tabs to the JTabbedPane
-                tabPanel.addTab("Tab 1", page1);
-                tabPanel.addTab("Tab 2", page2);
-                tabPanel.addTab("Tab 3", page3);
+        // Utworzenie trzeciej zakładki do wyświetlania labiryntu
+        mazePanel = new JPanel();
+        mazePanel.setLayout(new BorderLayout());
+        mazeArea = new JTextArea(20, 40);
+        mazeArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        mazeArea.setEditable(false);
 
-                // Add the JTabbedPane to the JFrame's content
-                window.add(tabPanel);
+        // Początkowe wyświetlenie wiadomości w obszarze labiryntu
+        mazeArea.setText("Labirynt zostanie wyświetlony tutaj.");
+        JScrollPane scrollPane = new JScrollPane(mazeArea);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Dodanie marginesu
+        mazePanel.add(scrollPane, BorderLayout.CENTER);
 
-                // Make the JFrame visible
-                window.setVisible(true);
-            }
+        // Dodanie trzech zakładek do JTabbedPane
+        tabPanel.addTab("Zakładka 1", page1);
+        tabPanel.addTab("Zakładka 2", page2);
+        tabPanel.addTab("Labirynt", mazePanel);
+
+        // Dodanie panelu zakładek do głównego panelu okna
+        window.add(tabPanel, BorderLayout.CENTER);
+
+        // Ustawienie paska menu z operacjami na plikach
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("Plik");
+        JMenuItem openItem = new JMenuItem("Otwórz labirynt");
+
+        openItem.addActionListener(e -> openMazeFile());
+        fileMenu.add(openItem);
+        menuBar.add(fileMenu);
+        window.setJMenuBar(menuBar);
+
+        // Wyświetlenie głównego okna
+        window.setVisible(true);
     }
+
+    // Metoda do otwierania pliku i odczytu labiryntu
+    private void openMazeFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Wybierz plik labiryntu");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Pliki tekstowe", "txt"));
+
+        int result = fileChooser.showOpenDialog(window);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                displayMaze(selectedFile);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Metoda do wyświetlania labiryntu z pliku
+    private void displayMaze(File mazeFile) throws IOException {
+        // Odczytanie wszystkich linii z pliku labiryntu
+        List<String> lines = Files.readAllLines(mazeFile.toPath());
+
+        // Konwersja listy ciągów znaków na jednen ciąg z przełamaniami linii
+        String mazeText = String.join("\n", lines);
+        mazeArea.setText(mazeText);
+
+        // Centralne wyświetlanie labiryntu
+        mazeArea.setCaretPosition(0); // Resetowanie pozycji przewijania do początku tekstu
+
+        // Aktualizacja panelu z labiryntem
+        mazePanel.revalidate();
+        mazePanel.repaint();
+    }
+
+}
