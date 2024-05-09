@@ -1,15 +1,15 @@
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainGuiPanel {
     private JFrame window;
     private JPanel mazePanel; // Panel do wyświetlania labiryntu
-    private JTextArea mazeArea; // Obszar tekstowy do pokazywania labiryntu
+    private JTextPane mazeArea; // JTextPane do pokazywania labiryntu z formatowaniem HTML
 
     public void run() {
         // Inicjalizacja głównego okna
@@ -35,12 +35,15 @@ public class MainGuiPanel {
         // Utworzenie trzeciej zakładki do wyświetlania labiryntu
         mazePanel = new JPanel();
         mazePanel.setLayout(new BorderLayout());
-        mazeArea = new JTextArea(20, 40);
-        mazeArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        // Utworzenie JTextPane do wyświetlania labiryntu z formatowaniem HTML
+        mazeArea = new JTextPane();
+        mazeArea.setContentType("text/html");
         mazeArea.setEditable(false);
+        mazeArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
         // Początkowe wyświetlenie wiadomości w obszarze labiryntu
-        mazeArea.setText("Labirynt zostanie wyświetlony tutaj.");
+        mazeArea.setText("<html><body>Labirynt zostanie wyświetlony tutaj.</body></html>");
         JScrollPane scrollPane = new JScrollPane(mazeArea);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Dodanie marginesu
         mazePanel.add(scrollPane, BorderLayout.CENTER);
@@ -89,19 +92,40 @@ public class MainGuiPanel {
 
     // Metoda do wyświetlania labiryntu z pliku
     private void displayMaze(File mazeFile) throws IOException {
-        // Odczytanie wszystkich linii z pliku labiryntu
         List<String> lines = Files.readAllLines(mazeFile.toPath());
+        StringBuilder htmlMaze = new StringBuilder("<html><body style='font-family: monospace; font-size: 12px;'><pre>");
 
-        // Konwersja listy ciągów znaków na jednen ciąg z przełamaniami linii
-        String mazeText = String.join("\n", lines);
-        mazeArea.setText(mazeText);
-
-        // Centralne wyświetlanie labiryntu
-        mazeArea.setCaretPosition(0); // Resetowanie pozycji przewijania do początku tekstu
+        for (String line : lines) {
+            for (char ch : line.toCharArray()) {
+                switch (ch) {
+                    case 'X':  // Ściana
+                        htmlMaze.append("<span style='color: black; background-color: #808080;'>").append(' ').append("</span>");
+                        break;
+                    case ' ':  // Scieżka
+                        htmlMaze.append("<span style='color: black; background-color: white;'>").append(' ').append("</span>");
+                        break;
+                    case 'P':  // Wejście
+                        htmlMaze.append("<span style='color: white; background-color: green;'>").append(ch).append("</span>");
+                        break;
+                    case 'K':  // Wyjście
+                        htmlMaze.append("<span style='color: white; background-color: red;'>").append(ch).append("</span>");
+                        break;
+                    default:   // Domyślnie, zachowaj tekstowy charakter labiryntu
+                        htmlMaze.append(ch);
+                        break;
+                }
+            }
+            htmlMaze.append("<br>"); // HTML line break for the next line of the maze
+        }
+        htmlMaze.append("</pre></body></html>");
+        mazeArea.setText(htmlMaze.toString());
 
         // Aktualizacja panelu z labiryntem
         mazePanel.revalidate();
         mazePanel.repaint();
     }
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new MainGuiPanel()::run);
+    }
 }
