@@ -1,3 +1,5 @@
+package GUI;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -5,34 +7,42 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 
-public class MainGuiPanel {
-    private JFrame window;
+public class MainGuiPanel implements GUIInterface {
     private JPanel mazePanel; // Panel do wyświetlania labiryntu
     private JTextPane mazeArea; // JTextPane do pokazywania labiryntu z formatowaniem HTML
+    private JFrame window;
+    private JMenuBar menuBar;
 
     public void run() {
-        // Inicjalizacja głównego okna
+        CreateMainPanel();
+
+        // Utworzenie JTabbedPane do przechowywania zakładek
+        JTabbedPane tabPanel = new JTabbedPane();
+        CreateMazePanel();
+        tabPanel.addTab("Labirynt", mazePanel);
+        window.add(tabPanel, BorderLayout.CENTER);
+
+        CreateFileReaderBar();
+        window.setJMenuBar(menuBar);
+
+        // Wyświetlenie głównego okna
+        window.setVisible(true);
+    }
+
+    @Override
+    public void CreateMainPanel() {
         window = new JFrame("Maze Solver - Kobus&Dutkiewicz");
         ImageIcon img = new ImageIcon("src/gallery/logo.png");
         window.setIconImage(img.getImage());
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setSize(800, 600);
+    }
 
-        // Utworzenie JTabbedPane do przechowywania zakładek
-        JTabbedPane tabPanel = new JTabbedPane();
-
-        // Utworzenie pierwszej zakładki i dodanie etykiety jako symbolu miejsca
-        JPanel page1 = new JPanel();
-        page1.setLayout(new BorderLayout());
-        page1.add(new JLabel("To jest zakładka 1", JLabel.CENTER));
-
-        // Utworzenie drugiej zakładki i dodanie etykiety jako symbolu miejsca
-        JPanel page2 = new JPanel();
-        page2.setLayout(new BorderLayout());
-        page2.add(new JLabel("To jest zakładka 2", JLabel.CENTER));
-
-        // Utworzenie trzeciej zakładki do wyświetlania labiryntu
+    // Utworzenie zakładki do wyświetlania labiryntu
+    @Override
+    public void CreateMazePanel() {
         mazePanel = new JPanel();
         mazePanel.setLayout(new BorderLayout());
 
@@ -47,31 +57,30 @@ public class MainGuiPanel {
         JScrollPane scrollPane = new JScrollPane(mazeArea);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Dodanie marginesu
         mazePanel.add(scrollPane, BorderLayout.CENTER);
+    }
 
-        // Dodanie trzech zakładek do JTabbedPane
-        tabPanel.addTab("Zakładka 1", page1);
-        tabPanel.addTab("Zakładka 2", page2);
-        tabPanel.addTab("Labirynt", mazePanel);
-
-        // Dodanie panelu zakładek do głównego panelu okna
-        window.add(tabPanel, BorderLayout.CENTER);
-
-        // Ustawienie paska menu z operacjami na plikach
-        JMenuBar menuBar = new JMenuBar();
+    @Override
+    public void CreateFileReaderBar() {
+        menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Plik");
         JMenuItem openItem = new JMenuItem("Otwórz labirynt");
 
-        openItem.addActionListener(e -> openMazeFile());
+        openItem.addActionListener(e -> {
+            try {
+                displayMaze(Objects.requireNonNull(openMazeFile()));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (NullPointerException nu) {
+                //kiedy plik nie został wybrany nie rób nic
+            }
+        });
+
         fileMenu.add(openItem);
         menuBar.add(fileMenu);
-        window.setJMenuBar(menuBar);
-
-        // Wyświetlenie głównego okna
-        window.setVisible(true);
     }
 
     // Metoda do otwierania pliku i odczytu labiryntu
-    private void openMazeFile() {
+    public File openMazeFile() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Wybierz plik labiryntu");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -81,13 +90,9 @@ public class MainGuiPanel {
         int result = fileChooser.showOpenDialog(window);
 
         if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            try {
-                displayMaze(selectedFile);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
-            }
+            return fileChooser.getSelectedFile();
         }
+        return null;
     }
 
     // Metoda do wyświetlania labiryntu z pliku
@@ -99,16 +104,16 @@ public class MainGuiPanel {
             for (char ch : line.toCharArray()) {
                 switch (ch) {
                     case 'X':  // Ściana
-                        htmlMaze.append("<span style='color: black; background-color: #808080;'>").append(' ').append("</span>");
+                        htmlMaze.append("<span style='color: black; background-color: #808080;'>").append("  ").append("</span>");
                         break;
                     case ' ':  // Scieżka
-                        htmlMaze.append("<span style='color: black; background-color: white;'>").append(' ').append("</span>");
+                        htmlMaze.append("<span style='color: black; background-color: white;'>").append("  ").append("</span>");
                         break;
                     case 'P':  // Wejście
-                        htmlMaze.append("<span style='color: white; background-color: green;'>").append(ch).append("</span>");
+                        htmlMaze.append("<span style='color: white; background-color: green;'>").append("P ").append("</span>");
                         break;
                     case 'K':  // Wyjście
-                        htmlMaze.append("<span style='color: white; background-color: red;'>").append(ch).append("</span>");
+                        htmlMaze.append("<span style='color: white; background-color: red;'>").append(" K").append("</span>");
                         break;
                     default:   // Domyślnie, zachowaj tekstowy charakter labiryntu
                         htmlMaze.append(ch);
