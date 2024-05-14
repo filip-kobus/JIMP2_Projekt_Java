@@ -3,28 +3,36 @@ package GUI;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
+
 
 public class MainGuiPanel implements GUIInterface {
     private JPanel mazePanel; // Panel do wyświetlania labiryntu
-    private JTextPane mazeArea; // JTextPane do pokazywania labiryntu z formatowaniem HTML
+    private BufferedImage mazeImage; // Obrazek do rysowania labiryntu
     private JFrame window;
     private JMenuBar menuBar;
+    private JScrollPane scrollPane; // Suwak do przewijania labiryntu
+    private double zoomFactor = 1.0; // Początkowy zoom
+    private double initialZoomFactor = 1.0; // Zoom używany do inicjalnego dopasowania
 
     public void run() {
+
+        // Utworzenie głównego okna
         CreateMainPanel();
+        CreateMazePanel();
+        CreateFileReaderBar();
+        CreateZoomControls();
 
         // Utworzenie JTabbedPane do przechowywania zakładek
         JTabbedPane tabPanel = new JTabbedPane();
-        CreateMazePanel();
-        tabPanel.addTab("Labirynt", mazePanel);
+        tabPanel.addTab("Labirynt", scrollPane);
         window.add(tabPanel, BorderLayout.CENTER);
 
-        CreateFileReaderBar();
         window.setJMenuBar(menuBar);
 
         // Wyświetlenie głównego okna
@@ -38,27 +46,107 @@ public class MainGuiPanel implements GUIInterface {
         window.setIconImage(img.getImage());
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setSize(800, 600);
+        window.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (mazeImage != null) {
+                    fitMazeToWindow();
+                }
+            }
+        });
     }
 
-    // Utworzenie zakładki do wyświetlania labiryntu
+    // Metoda do tworzenia panelu z labiryntem
     @Override
     public void CreateMazePanel() {
-        mazePanel = new JPanel();
-        mazePanel.setLayout(new BorderLayout());
+        mazePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) { // Metoda rysująca labirynt
+                super.paintComponent(g);
+                if (mazeImage != null) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    int panelWidth = getWidth();
+                    int panelHeight = getHeight();
 
-        // Utworzenie JTextPane do wyświetlania labiryntu z formatowaniem HTML
-        mazeArea = new JTextPane();
-        mazeArea.setContentType("text/html");
-        mazeArea.setEditable(false);
-        mazeArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                    // Obliczenie wymiarów obrazka z uwzględnieniem zooma
+                    int scaledWidth = (int) (mazeImage.getWidth() * initialZoomFactor * zoomFactor);
+                    int scaledHeight = (int) (mazeImage.getHeight() * initialZoomFactor * zoomFactor);
 
-        // Początkowe wyświetlenie wiadomości w obszarze labiryntu
-        mazeArea.setText("<html><body>Labirynt zostanie wyświetlony tutaj.</body></html>");
-        JScrollPane scrollPane = new JScrollPane(mazeArea);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Dodanie marginesu
-        mazePanel.add(scrollPane, BorderLayout.CENTER);
+                    int x = (panelWidth - scaledWidth) / 2;
+                    int y = (panelHeight - scaledHeight) / 2;
+
+                    // Rysowanie obrazka
+                    g2d.drawImage(mazeImage, x, y, scaledWidth, scaledHeight, this);
+                    g2d.dispose();
+                }
+            }
+        };
+
+
+        // Obsługa zdarzenia przewijania scrollem w myszce
+        // Zoomowanie obrazka
+        mazePanel.addMouseWheelListener(new MouseWheelListener() {
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (e.getPreciseWheelRotation() < 0) {
+                    zoomFactor *= 1.1;
+                } else {
+                    zoomFactor /= 1.1;
+                }
+                updateZoom();
+            }
+        });
+
+        // Obsługa zdarzenia kliknięcia w labirynt
+        mazePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (mazeImage == null) return;
+
+                // Obliczenie współrzędnych kliknięcia w obrazek
+                int x = e.getX();
+                int y = e.getY();
+                int panelWidth = mazePanel.getWidth();
+                int panelHeight = mazePanel.getHeight();
+
+                int scaledWidth = (int) (mazeImage.getWidth() * initialZoomFactor * zoomFactor);
+                int scaledHeight = (int) (mazeImage.getHeight() * initialZoomFactor * zoomFactor);
+
+                int offsetX = (panelWidth - scaledWidth) / 2;
+                int offsetY = (panelHeight - scaledHeight) / 2;
+
+                // Sprawdzenie czy kliknięto w obszar obrazka
+                if (x >= offsetX && x < offsetX + scaledWidth && y >= offsetY && y < offsetY + scaledHeight) {
+                    int imageX = (int) ((x - offsetX) / (initialZoomFactor * zoomFactor));
+                    int imageY = (int) ((y - offsetY) / (initialZoomFactor * zoomFactor));
+                    // Wyświetlenie informacji o klikniętej komórce
+                    JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", "Info", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
+
+        // Utworzenie suwaka do przewijania labiryntu
+        scrollPane = new JScrollPane(mazePanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
     }
 
+
+    // Metoda do aktualizacji zooma
+    private void updateZoom() {
+        if (mazeImage != null) {
+            int newWidth = (int) (mazeImage.getWidth() * initialZoomFactor * zoomFactor);
+            int newHeight = (int) (mazeImage.getHeight() * initialZoomFactor * zoomFactor);
+            mazePanel.setPreferredSize(new Dimension(newWidth, newHeight));
+            mazePanel.revalidate();
+            mazePanel.repaint();
+            scrollPane.revalidate();
+        }
+    }
+
+
+    // Metoda do tworzenia paska menu
     @Override
     public void CreateFileReaderBar() {
         menuBar = new JMenuBar();
@@ -67,11 +155,13 @@ public class MainGuiPanel implements GUIInterface {
 
         openItem.addActionListener(e -> {
             try {
-                displayMaze(Objects.requireNonNull(openMazeFile()));
+                File mazeFile = openMazeFile();
+                if (mazeFile != null) {
+                    displayMaze(mazeFile);
+                    fitMazeToWindow();
+                }
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (NullPointerException nu) {
-                //kiedy plik nie został wybrany nie rób nic
+                JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -79,7 +169,32 @@ public class MainGuiPanel implements GUIInterface {
         menuBar.add(fileMenu);
     }
 
-    // Metoda do otwierania pliku i odczytu labiryntu
+
+    // Metoda do tworzenia przycisków do zoomowania
+    private void CreateZoomControls() {
+        JPanel zoomPanel = new JPanel(new GridLayout(2, 1));
+        JButton zoomInButton = new JButton("+");
+        JButton zoomOutButton = new JButton("-");
+
+
+        // Obsługa zdarzenia kliknięcia przycisków zoomowania
+        zoomInButton.addActionListener(e -> {
+            zoomFactor *= 1.1;
+            updateZoom();
+        });
+
+        zoomOutButton.addActionListener(e -> {
+            zoomFactor /= 1.1;
+            updateZoom();
+        });
+
+        // Dodanie przycisków do panelu
+        zoomPanel.add(zoomInButton);
+        zoomPanel.add(zoomOutButton);
+
+        window.add(zoomPanel, BorderLayout.EAST);
+    }
+
     public File openMazeFile() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Wybierz plik labiryntu");
@@ -95,42 +210,67 @@ public class MainGuiPanel implements GUIInterface {
         return null;
     }
 
-    // Metoda do wyświetlania labiryntu z pliku
     private void displayMaze(File mazeFile) throws IOException {
-        List<String> lines = Files.readAllLines(mazeFile.toPath());
-        StringBuilder htmlMaze = new StringBuilder("<html><body style='font-family: monospace; font-size: 12px;'><pre>");
+        List<String> lines = Files.readAllLines(mazeFile.toPath()); // Odczytanie linii z pliku
+        int rows = lines.size();
+        int cols = lines.get(0).length();
 
-        for (String line : lines) {
-            for (char ch : line.toCharArray()) {
+        mazeImage = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB); // Utworzenie obrazka
+        Graphics2D g2d = mazeImage.createGraphics();
+
+        for (int i = 0; i < rows; i++) { // Rysowanie labiryntu
+            for (int j = 0; j < cols; j++) {
+                char ch = lines.get(i).charAt(j);
                 switch (ch) {
-                    case 'X':  // Ściana
-                        htmlMaze.append("<span style='color: black; background-color: #808080;'>").append("  ").append("</span>");
+                    case 'X':
+                        g2d.setColor(Color.GRAY);
                         break;
-                    case ' ':  // Scieżka
-                        htmlMaze.append("<span style='color: black; background-color: white;'>").append("  ").append("</span>");
+                    case ' ':
+                        g2d.setColor(Color.WHITE);
                         break;
-                    case 'P':  // Wejście
-                        htmlMaze.append("<span style='color: white; background-color: green;'>").append("P ").append("</span>");
+                    case 'P':
+                        g2d.setColor(Color.GREEN);
                         break;
-                    case 'K':  // Wyjście
-                        htmlMaze.append("<span style='color: white; background-color: red;'>").append(" K").append("</span>");
+                    case 'K':
+                        g2d.setColor(Color.RED);
                         break;
-                    default:   // Domyślnie, zachowaj tekstowy charakter labiryntu
-                        htmlMaze.append(ch);
+                    default:
+                        g2d.setColor(Color.WHITE);
                         break;
                 }
+                g2d.fillRect(j, i, 1, 1); // Rysowanie piksela
             }
-            htmlMaze.append("<br>"); // HTML line break for the next line of the maze
         }
-        htmlMaze.append("</pre></body></html>");
-        mazeArea.setText(htmlMaze.toString());
+        g2d.dispose();
 
-        // Aktualizacja panelu z labiryntem
-        mazePanel.revalidate();
-        mazePanel.repaint();
+        // Reset zoom and fit maze to window
+        zoomFactor = 1.0;
+        fitMazeToWindow(); // Dopasowanie labiryntu do okna
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new MainGuiPanel()::run);
+
+    // Dopasowanie labiryntu do okna
+    private void fitMazeToWindow() {
+        if (mazeImage != null) {
+
+            // Obliczenie wymiarów okna i obrazka
+            int windowWidth = scrollPane.getViewport().getWidth();
+            int windowHeight = scrollPane.getViewport().getHeight();
+
+            // Obliczenie proporcji okna i obrazka
+            double windowRatio = (double) windowWidth / windowHeight;
+            double imageRatio = (double) mazeImage.getWidth() / mazeImage.getHeight();
+
+
+
+            if (windowRatio > imageRatio) {
+                initialZoomFactor = (double) windowHeight / mazeImage.getHeight();
+            } else {
+                initialZoomFactor = (double) windowWidth / mazeImage.getWidth();
+            }
+            zoomFactor = 1.0;  // Reset the zoom factor to 1.0 for new image
+            updateZoom();
+        }
     }
+
 }
