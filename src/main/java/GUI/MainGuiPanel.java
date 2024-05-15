@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import Algorithm.Binary;
 
 
 public class MainGuiPanel implements GUIInterface {
@@ -157,8 +158,17 @@ public class MainGuiPanel implements GUIInterface {
             try {
                 File mazeFile = openMazeFile();
                 if (mazeFile != null) {
-                    displayMaze(mazeFile);
-                    fitMazeToWindow();
+                    // jesli plik konczy sie z .bin
+                    if (mazeFile.getName().endsWith(".bin")) {
+                        File txtFile = new File(mazeFile.getParent(), mazeFile.getName().replace(".bin", ".txt"));
+                        Binary.convertBinaryToText(mazeFile.getAbsolutePath(), txtFile.getAbsolutePath());
+                        displayMaze(txtFile);
+                        fitMazeToWindow();
+                    }
+                    else {
+                        displayMaze(mazeFile);
+                        fitMazeToWindow();
+                    }
                 }
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -200,7 +210,7 @@ public class MainGuiPanel implements GUIInterface {
         fileChooser.setDialogTitle("Wybierz plik labiryntu");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Pliki tekstowe", "txt"));
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Pliki tekstowe lub binarne", "txt","bin"));
 
         int result = fileChooser.showOpenDialog(window);
 
