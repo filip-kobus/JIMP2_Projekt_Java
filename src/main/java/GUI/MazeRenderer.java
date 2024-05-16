@@ -73,36 +73,48 @@ public class MazeRenderer {
     public void updateMazeData() {
         if (temporaryMazeFile != null && mazeImage != null) {
             try {
-                char[][] mazeChars = new char[mazeImage.getHeight()][mazeImage.getWidth()];
-
-                for (int y = 0; y < mazeImage.getHeight(); y++) {
-                    for (int x = 0; x < mazeImage.getWidth(); x++) {
-                        Color color = new Color(mazeImage.getRGB(x, y));
-                        if (color.equals(Color.GREEN)) {
-                            mazeChars[y][x] = 'P';
-                        } else if (color.equals(Color.RED)) {
-                            mazeChars[y][x] = 'K';
-                        } else if (color.equals(Color.GRAY)) {
-                            mazeChars[y][x] = 'X';
-                        } else {
-                            mazeChars[y][x] = ' ';
-                        }
-                    }
-                }
-
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(temporaryMazeFile))) {
-                    for (char[] row : mazeChars) {
-                        writer.write(row);
-                        writer.newLine();
-                    }
-                }
-
+                char[][] mazeChars = buildCharRepresentation();
+                saveMazeData(mazeChars, temporaryMazeFile);
                 JOptionPane.showMessageDialog(null, "Maze data updated and saved successfully.", "Update Successful", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "Failed to save maze data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+
+    private char[][] buildCharRepresentation() {
+        char[][] mazeChars = new char[mazeImage.getHeight()][mazeImage.getWidth()];
+
+        for (int y = 0; y < mazeImage.getHeight(); y++) {
+            for (int x = 0; x < mazeImage.getWidth(); x++) {
+                mazeChars[y][x] = getCharForColor(new Color(mazeImage.getRGB(x, y)));
+            }
+        }
+
+        return mazeChars;
+    }
+
+    private char getCharForColor(Color color) {
+        if (color.equals(Color.GREEN)) {
+            return 'P';
+        } else if (color.equals(Color.RED)) {
+            return 'K';
+        } else if (color.equals(Color.GRAY)) {
+            return 'X';
+        } else {
+            return ' ';
+        }
+    }
+
+    private void saveMazeData(char[][] mazeChars, File file) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (char[] row : mazeChars) {
+                writer.write(row);
+                writer.newLine();
+            }
+        }
+    }
+
 
 
 
