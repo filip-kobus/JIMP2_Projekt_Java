@@ -21,9 +21,12 @@ public class Binary {
     }
 
     public static void convertBinaryToText(String binaryFilePath, String textFilePath) throws IOException {
+
+        System.out.println("Aktywacja");
         try (DataInputStream binaryFile = new DataInputStream(new FileInputStream(binaryFilePath));
              BufferedWriter textFile = new BufferedWriter(new FileWriter(textFilePath))) {
 
+            System.out.println("Otwarcie pliku");
             // Wczytanie nagłówka pliku binarnego
             long fileId = readUnsignedIntLittleEndian(binaryFile);
             int escape = binaryFile.readUnsignedByte();
