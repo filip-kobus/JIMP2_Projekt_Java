@@ -11,7 +11,7 @@ import java.io.FileWriter;
 
 
 public class MazeRenderer {
-    private BufferedImage mazeImage; // Obrázek labiryntu
+    private BufferedImage mazeImage; // Obrazek labiryntu
     private JPanel mazePanel; // Panel, na którym jest rysowany labirynt
     private double initialZoomFactor = 1.0;
     private double zoomFactor = 1.0;

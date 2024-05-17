@@ -25,6 +25,9 @@ public class MainGuiPanel implements GUIInterface {
     private File currentMazeFile;
     private File temporaryMazeFile; // Tymczasowy plik
 
+    private static final double ZOOM_IN_FACTOR = 1.1;
+    private static final double ZOOM_OUT_FACTOR = 0.9;
+
     public void run() {
         CreateMainPanel();
         CreateMazePanel();
@@ -44,7 +47,7 @@ public class MainGuiPanel implements GUIInterface {
     public void CreateMainPanel() {
         window = new JFrame("Maze Solver - Kobus&Dutkiewicz");
         window.setIconImage(new ImageIcon("src/gallery/logo.png").getImage());
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         window.setSize(800, 600);
         window.addComponentListener(new ComponentAdapter() {
             @Override
@@ -60,22 +63,27 @@ public class MainGuiPanel implements GUIInterface {
     // Metoda tworząca panel z labiryntem
     @Override
     public void CreateMazePanel() {
-        mazeRenderer = new MazeRenderer(null); // Utworzenie labiryntu
-        JPanel mazePanel = mazeRenderer.createMazePanel(); // Utworzenie panelu z labiryntem
+        mazeRenderer = new MazeRenderer(null); // Twożenie labiryntu
+        JPanel mazePanel = mazeRenderer.createMazePanel(); // Twożenie panelu z labiryntem
 
+        // Dodanie listenerów do panelu
+        attachMouseWheelListener(mazePanel);
+        attachMouseListener(mazePanel);
 
-        // Scrollowanie
-        mazePanel.addMouseWheelListener(new MouseWheelListener() {
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                double zoomFactor = mazeRenderer.getZoomFactor();
-                zoomFactor *= e.getPreciseWheelRotation() < 0 ? 1.1 : 0.9;
-                mazeRenderer.setZoomFactor(zoomFactor);
-                updateZoom();
-            }
+        // Konfiguracja scroll panelu
+        configureScrollPane(mazePanel);
+    }
+
+    private void attachMouseWheelListener(JPanel mazePanel) {
+        mazePanel.addMouseWheelListener(e -> {
+            double zoomFactor = mazeRenderer.getZoomFactor();
+            zoomFactor *= e.getPreciseWheelRotation() < 0 ? ZOOM_IN_FACTOR : ZOOM_OUT_FACTOR;
+            mazeRenderer.setZoomFactor(zoomFactor);
+            updateZoom();
         });
+    }
 
-
-        // Kliknięcie myszy
+    private void attachMouseListener(JPanel mazePanel) {
         mazePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -92,45 +100,42 @@ public class MainGuiPanel implements GUIInterface {
                 int offsetX = (panelWidth - scaledWidth) / 2;
                 int offsetY = (panelHeight - scaledHeight) / 2;
 
-
-                // Sprawdzenie czy kliknięto w labirynt
+                // Sprawdzenie czy kliknięto w obszar labiryntu
                 if (x >= offsetX && x < offsetX + scaledWidth && y >= offsetY && y < offsetY + scaledHeight) {
                     int imageX = (int) ((x - offsetX) / (mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor()));
                     int imageY = (int) ((y - offsetY) / (mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor()));
 
-
-                    // Ustawienie punktu początkowego i końcowego jeśli nie zostały jeszcze ustawione
-                    if (selectedState != 0) {
-                        mazeRenderer.paintCell(imageX, imageY, selectedState);
-                        if (selectedState == 1) {
-                            JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
-                            selectedState = 2;  // Move to selecting exit
-                        } else if (selectedState == 2) {
-                            selectedState = 0;  // Reset after setting exit
-                            mazeRenderer.updateMazeData();
-                            JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Info", JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", "Info", JOptionPane.INFORMATION_MESSAGE);
-                    }
+                    // Obsługa kliknięcia w komórkę labiryntu
+                    handleMazeCellSelection(imageX, imageY);
                 }
             }
         });
+    }
 
+    private void handleMazeCellSelection(int imageX, int imageY) {
+        if (selectedState != 0) { // Jeśli wybrano punkt początkowy lub końcowy
+            mazeRenderer.paintCell(imageX, imageY, selectedState);
+            if (selectedState == 1) { // Jeśli wybrano punkt początkowy
+                JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
+                selectedState = 2;
+            } else if (selectedState == 2) { // Jeśli wybrano punkt końcowy
+                selectedState = 0;
+                mazeRenderer.updateMazeData();
+                JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", "Info", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 
-
-
-
-
-        // Scrollowanie
+    private void configureScrollPane(JPanel mazePanel) {
         scrollPane = new JScrollPane(mazePanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
-
-
     }
+
 
 
     // Metoda aktualizująca zoom
@@ -139,11 +144,11 @@ public class MainGuiPanel implements GUIInterface {
             int newWidth = (int) (mazeRenderer.getMazeImage().getWidth() * mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor());
             int newHeight = (int) (mazeRenderer.getMazeImage().getHeight() * mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor());
 
-            // Set the preferred size based on the zoomed dimensions
+            // Ustawienie nowych wymiarów panelu z labiryntem
             mazeRenderer.getMazePanel().setPreferredSize(new Dimension(newWidth, newHeight));
             mazeRenderer.getMazePanel().revalidate();
 
-            // Update the scroll pane to adjust to the new size of the panel
+            // Aktualizacja scroll panelu
             scrollPane.revalidate();
             scrollPane.repaint();
         }
@@ -264,8 +269,8 @@ public class MainGuiPanel implements GUIInterface {
                     : (double) windowWidth / mazeRenderer.getMazeImage().getWidth();
 
             mazeRenderer.setInitialZoomFactor(initialZoomFactor);
-            mazeRenderer.setZoomFactor(1.0); // Reset zoom
-            updateZoom(); // Update zoom based on the new initial factor
+            mazeRenderer.setZoomFactor(1.0); // Resetowanie zoomu
+            updateZoom(); // Aktualizacja zoomu
         }
     }
 
@@ -274,25 +279,44 @@ public class MainGuiPanel implements GUIInterface {
 
     // Metoda sprawdzająca czy są punkty początkowy i końcowy
     private void checkForEntranceAndExit() {
-        boolean foundP = false, foundK = false;
         BufferedImage image = mazeRenderer.getMazeImage();
-        if (image != null) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                for (int x = 0; x < image.getWidth(); x++) {
-                    int color = image.getRGB(x, y);
-                    if (color == Color.GREEN.getRGB()) foundP = true;
-                    if (color == Color.RED.getRGB()) foundK = true;
-                    if (foundP && foundK) break;
-                }
-            }
+        if (image == null) {
+            handleNoImage();
+            return;
         }
 
+        boolean[] found = findEntranceAndExit(image);
+        boolean foundP = found[0];
+        boolean foundK = found[1];
+
         if (!foundP || !foundK) {
-            JOptionPane.showMessageDialog(window, "Brak punktu wejścia lub wyjścia. Wybierz je klikając na ścianę.", "Uwaga", JOptionPane.WARNING_MESSAGE);
-            selectedState = !foundP ? 1 : 2; // Start with selecting entry if 'P' is missing
+            showWarning(foundP, foundK);
         } else {
             selectedState = 0;
         }
     }
+
+    private boolean[] findEntranceAndExit(BufferedImage image) {
+        boolean foundP = false, foundK = false;
+        for (int y = 0; y < image.getHeight() && !(foundP && foundK); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int color = image.getRGB(x, y);
+                if (color == Color.GREEN.getRGB()) foundP = true;
+                if (color == Color.RED.getRGB()) foundK = true;
+                if (foundP && foundK) break;
+            }
+        }
+        return new boolean[]{foundP, foundK};
+    }
+
+    private void showWarning(boolean foundP, boolean foundK) {
+        JOptionPane.showMessageDialog(window, "Brak punktu wejścia lub wyjścia. Wybierz je klikając na ścianę.", "Uwaga", JOptionPane.WARNING_MESSAGE);
+        selectedState = !foundP ? 1 : 2;
+    }
+
+    private void handleNoImage() {
+        JOptionPane.showMessageDialog(window, "No maze image found.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
 
 }
