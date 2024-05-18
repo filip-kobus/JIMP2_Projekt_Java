@@ -30,11 +30,14 @@ public class MainGuiPanel implements GUIInterface {
     private static final double ZOOM_IN_FACTOR = 1.1;
     private static final double ZOOM_OUT_FACTOR = 0.9;
 
+    private String info = "Informacja";
+
     public void run() {
         CreateMainPanel();
         CreateMazePanel();
         CreateFileReaderBar();
         CreateZoomControls();
+        createOptionsBar();
 
         JTabbedPane tabPanel = new JTabbedPane();
         tabPanel.addTab("Labirynt", scrollPane);
@@ -85,6 +88,8 @@ public class MainGuiPanel implements GUIInterface {
         });
     }
 
+
+    // Metoda obsługująca kliknięcie myszką
     private void attachMouseListener(JPanel mazePanel) {
         mazePanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -114,22 +119,38 @@ public class MainGuiPanel implements GUIInterface {
         });
     }
 
+    // Metoda obsługująca wybór komórki labiryntu
     private void handleMazeCellSelection(int imageX, int imageY) {
-        if (selectedState != 0) { // Jeśli wybrano punkt początkowy lub końcowy
-            mazeRenderer.paintCell(imageX, imageY, selectedState);
-            if (selectedState == 1) { // Jeśli wybrano punkt początkowy
-                JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
-                selectedState = 2;
-            } else if (selectedState == 2) { // Jeśli wybrano punkt końcowy
-                selectedState = 0;
-                mazeRenderer.updateMazeData();
-                JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Info", JOptionPane.INFORMATION_MESSAGE);
+        if (selectedState != 0) { // Jeśli jesteśmy w trakcie wybierania wejścia lub wyjścia
+            if (isEdge(imageX, imageY)) { // Sprawdza, czy punkt znajduje się na brzegu labiryntu
+                mazeRenderer.paintCell(imageX, imageY, selectedState); // Ustawia komórkę labiryntu
+
+                if (selectedState == 1) { // Jeśli wybrano punkt początkowy
+                    JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
+                    selectedState = 2; // Ustawienie stanu na wybór punktu końcowego
+                } else if (selectedState == 2) { // Jeśli wybrano punkt końcowy
+                    selectedState = 0; // Resetowanie stanu wyboru
+                    mazeRenderer.updateMazeData(); // Aktualizacja danych labiryntu
+                    JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", info, JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(window, "Wejście i wyjście można ustawiać tylko na krawędziach labiryntu.", "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", "Info", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", info, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
+
+    // Metoda sprawdzająca czy punkt znajduje się na brzegu labiryntu
+    private boolean isEdge(int x, int y) {
+        int width = mazeRenderer.getMazeImage().getWidth();
+        int height = mazeRenderer.getMazeImage().getHeight();
+        return x == 0 || x == width - 1 || y == 0 || y == height - 1;
+    }
+
+
+    // Metoda konfigurująca scroll panel
     private void configureScrollPane(JPanel mazePanel) {
         scrollPane = new JScrollPane(mazePanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -235,7 +256,7 @@ public class MainGuiPanel implements GUIInterface {
 
             try {
                 FileIO.writeMazeToFile(mazeRenderer.getMazeImage(), fileToSave);
-                JOptionPane.showMessageDialog(window, "Labirynt został zapisany w " + fileToSave.getPath(), "Informacja", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(window, "Labirynt został zapisany w " + fileToSave.getPath(), info, JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(window, "Nie udało się zapisać labiryntu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
             }
@@ -268,7 +289,7 @@ public class MainGuiPanel implements GUIInterface {
             try {
                 // Zapisywanie pliku obrazu
                 ImageIO.write(mazeRenderer.getMazeImage(), ext, fileToSave);
-                JOptionPane.showMessageDialog(window, "Obraz labiryntu został zapisany w " + fileToSave.getPath(), "Informacja", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(window, "Obraz labiryntu został zapisany w " + fileToSave.getPath(), info, JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(window, "Nie udało się zapisać obrazu labiryntu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
             }
@@ -376,6 +397,48 @@ public class MainGuiPanel implements GUIInterface {
     private void handleNoImage() {
         JOptionPane.showMessageDialog(window, "No maze image found.", "Error", JOptionPane.ERROR_MESSAGE);
     }
+
+
+    private void createOptionsBar() {
+        JMenu optionsMenu = new JMenu("Opcje");
+
+        JMenuItem setEntranceExitItem = new JMenuItem("Ustaw wejście i wyjście");
+
+        setEntranceExitItem.addActionListener(e -> {
+            if (mazeRenderer.getMazeImage() != null) {
+                resetEntranceAndExit();
+                selectedState = 1; // Set state to choose entrance first
+                JOptionPane.showMessageDialog(window, "Wybierz punkt początkowy na labiryncie.", "Ustaw wejście i wyjście", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        optionsMenu.add(setEntranceExitItem);
+        menuBar.add(optionsMenu);
+    }
+
+    private void resetEntranceAndExit() {
+        // Sprawdza, czy obraz labiryntu jest dostępny
+        if (mazeRenderer.getMazeImage() != null) {
+            BufferedImage image = mazeRenderer.getMazeImage();
+            for (int y = 0; y < image.getHeight(); y++) {
+                for (int x = 0; x < image.getWidth(); x++) {
+                    // Sprawdza, czy obecny piksel to wejście lub wyjście
+                    if (new Color(image.getRGB(x, y)).equals(Color.GREEN) || new Color(image.getRGB(x, y)).equals(Color.RED)) {
+                        image.setRGB(x, y, Color.GRAY.getRGB());  // Zmienia kolor na szary (ściana)
+                    }
+                }
+            }
+            mazeRenderer.setMazeImage(image); // Aktualizuje obraz labiryntu
+            mazeRenderer.getMazePanel().repaint(); // Odświeża panel z labiryntem
+            selectedState = 0; // Resetuje stan wyboru
+            JOptionPane.showMessageDialog(window, "Wejście i wyjście zostały zresetowane jako ściany.", "Reset", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 
 
 }
