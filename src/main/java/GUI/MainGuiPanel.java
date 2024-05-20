@@ -112,8 +112,6 @@ public class MainGuiPanel implements GUIInterface {
                     MazeUtilities.handleMazeCellSelection(mazeRenderer, imageX, imageY, window);
 
 
-
-
                 }
             }
         });
@@ -169,7 +167,7 @@ public class MainGuiPanel implements GUIInterface {
         saveItem.addActionListener(e -> FileIO.saveMazeAsText(mazeRenderer.getMazeImage(), window));
 
         // Dołączanie akcji do zapisywania labiryntu jako obrazu
-        saveImageItem.addActionListener(e -> FileIO.saveMazeAsImage(mazeRenderer.getMazeImage(), window));
+        saveImageItem.addActionListener(e ->FileIO.saveMazeAsImage(mazeRenderer.getMazeImage(), window, mazeRenderer.getMazePanel()));
 
 
         // Dodawanie pozycji do menu pliku
@@ -264,9 +262,5 @@ public class MainGuiPanel implements GUIInterface {
         optionsMenu.add(setEntranceExitItem);
         menuBar.add(optionsMenu);
     }
-
-
-
-
 
 }

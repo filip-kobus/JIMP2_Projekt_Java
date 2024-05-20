@@ -55,13 +55,10 @@ public class MazeRenderer {
 
         Color color = state == 1 ? Color.GREEN : (state == 2 ? Color.RED : Color.GRAY);
 
-        // Update the image pixel
+        // Ustawienie koloru piksela
         mazeImage.setRGB(x, y, color.getRGB());
         mazePanel.repaint(); // Upewnienie się, że panel z labiryntem zostanie odświeżony
     }
-
-
-
 
     // Aktualizacja danych labiryntu
     public void updateMazeData() {

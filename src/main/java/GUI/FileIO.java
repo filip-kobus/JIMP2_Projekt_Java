@@ -13,11 +13,19 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JFrame;
+
 
 
 
 
 public class FileIO {
+
+    // Minimalne wymiary obrazu labiryntu
+    private static final int MIN_WIDTH = 800;
+    private static final int MIN_HEIGHT = 800;
 
     // Czytanie pliku z labiryntem
     public static BufferedImage readMazeFromFile(File file) throws IOException {
@@ -110,7 +118,7 @@ public class FileIO {
     }
 
     // Zachowuje labirynt jako obraz
-    public static void saveMazeAsImage(BufferedImage mazeImage, JFrame window) {
+    public static void saveMazeAsImage(BufferedImage mazeImage, JFrame window, JPanel mazePanel) {
         if (mazeImage == null) {
             JOptionPane.showMessageDialog(window, "Nie ma otwartego labiryntu do zapisania jako obraz!", "Błąd", JOptionPane.ERROR_MESSAGE);
             return;
@@ -131,8 +139,20 @@ public class FileIO {
             fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName().endsWith("." + ext) ? fileToSave.getName() : fileToSave.getName() + "." + ext);
 
             try {
-                // Zapisz obraz bezpośrednio bez zmiany rozmiaru
-                ImageIO.write(mazeImage, ext, fileToSave);
+                BufferedImage imageToSave;
+                if (mazeImage.getWidth() < MIN_WIDTH && mazeImage.getHeight() < MIN_HEIGHT) {
+                    // Zrzut ekranu panelu labiryntu jeśli jest mniejszy niż minimalne wymiary
+                    imageToSave = new BufferedImage(mazePanel.getWidth(), mazePanel.getHeight(), BufferedImage.TYPE_INT_RGB);
+                    Graphics2D g2d = imageToSave.createGraphics();
+                    mazePanel.paint(g2d);
+                    g2d.dispose();
+                } else {
+                    // Skalowanie obrazu labiryntu do minimalnych wymiarów
+                    imageToSave = scaleImage(mazeImage, Math.max(MIN_WIDTH, mazeImage.getWidth()), Math.max(MIN_HEIGHT, mazeImage.getHeight()));
+                }
+
+                // Zapis obrazu do pliku
+                ImageIO.write(imageToSave, ext, fileToSave);
                 JOptionPane.showMessageDialog(window, "Obraz labiryntu został zapisany w " + fileToSave.getPath(), "Informacja", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(window, "Nie udało się zapisać obrazu labiryntu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -140,10 +160,16 @@ public class FileIO {
         }
     }
 
-
-
-
-
+    private static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage scaledImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = scaledImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        g2d.dispose();
+        return scaledImage;
+    }
 
 
     public static File openMazeFile(JFrame window) {
@@ -170,18 +196,5 @@ public class FileIO {
         // Wczytanie przygotowanego pliku do obrazu
         return readMazeFromFile(temporaryMazeFile);
     }
-
-
-    public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
-        BufferedImage scaledImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = scaledImage.createGraphics();
-
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
-        g2d.dispose();
-
-        return scaledImage;
-    }
-
 
 }
