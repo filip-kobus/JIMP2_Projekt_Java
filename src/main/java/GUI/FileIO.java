@@ -1,5 +1,7 @@
 package GUI;
 
+import Algorithm.Binary;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -9,6 +11,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 
 public class FileIO {
@@ -134,5 +137,32 @@ public class FileIO {
             }
         }
     }
+
+
+    public static File openMazeFile(JFrame window) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Wybierz plik labiryntu");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Pliki tekstowe lub binarne", "txt", "bin"));
+
+        int result = fileChooser.showOpenDialog(window);
+        return (result == JFileChooser.APPROVE_OPTION) ? fileChooser.getSelectedFile() : null;
+    }
+
+    public static BufferedImage prepareMazeImage(File mazeFile, JFrame window) throws IOException {
+        File temporaryMazeFile = createTemporaryFileCopy(mazeFile);
+
+        // Sprawdzenie, czy plik jest plikiem binarnym i konwersja jeśli potrzeba
+        if (mazeFile.getName().endsWith(".bin")) {
+            File txtFile = new File(temporaryMazeFile.getParent(), temporaryMazeFile.getName().replace(".bin", ".txt"));
+            Binary.convertBinaryToText(mazeFile.getAbsolutePath(), txtFile.getAbsolutePath());
+            temporaryMazeFile = txtFile;
+        }
+
+        // Wczytanie przygotowanego pliku do obrazu
+        return readMazeFromFile(temporaryMazeFile);
+    }
+
 
 }

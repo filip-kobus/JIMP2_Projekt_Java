@@ -28,6 +28,8 @@ public class MainGuiPanel implements GUIInterface {
 
 
 
+
+    // Metoda uruchamiająca GUI
     public void run() {
         CreateMainPanel();
         CreateMazePanel();
@@ -75,6 +77,8 @@ public class MainGuiPanel implements GUIInterface {
         configureScrollPane(mazePanel);
     }
 
+
+    // Metoda obsługująca scroll myszki
     private void attachMouseWheelListener(JPanel mazePanel) {
         mazePanel.addMouseWheelListener(e -> {
             double zoomFactor = mazeRenderer.getZoomFactor();
@@ -189,21 +193,13 @@ public class MainGuiPanel implements GUIInterface {
         menuBar.add(fileMenu);
     }
 
+
+    // Metoda otwierająca labirynt
     private void openMaze() {
         try {
-            File mazeFile = openMazeFile();
+            File mazeFile = FileIO.openMazeFile(window);
             if (mazeFile != null) {
-                currentMazeFile = mazeFile;
-                temporaryMazeFile = FileIO.createTemporaryFileCopy(mazeFile);
-
-                // Sprawdzenie, czy plik jest plikiem binarnym
-                if (mazeFile.getName().endsWith(".bin")) {
-                    File txtFile = new File(temporaryMazeFile.getParent(), temporaryMazeFile.getName().replace(".bin", ".txt"));
-
-                    Binary.convertBinaryToText(currentMazeFile.getAbsolutePath(), txtFile.getAbsolutePath());
-                    temporaryMazeFile = txtFile;
-                }
-                BufferedImage image = FileIO.readMazeFromFile(temporaryMazeFile);
+                BufferedImage image = FileIO.prepareMazeImage(mazeFile, window);
                 mazeRenderer.setMazeImage(image);
                 fitMazeToWindow();
                 MazeUtilities.checkForEntranceAndExit(mazeRenderer, window);
@@ -212,6 +208,7 @@ public class MainGuiPanel implements GUIInterface {
             JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     // Metoda tworząca przyciski do zoomowania
     private void CreateZoomControls() {
@@ -234,17 +231,8 @@ public class MainGuiPanel implements GUIInterface {
         window.add(zoomPanel, BorderLayout.EAST);
     }
 
-    // Metoda otwierająca plik z labiryntem
-    public File openMazeFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Wybierz plik labiryntu");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Pliki tekstowe lub binarne", "txt", "bin"));
 
-        int result = fileChooser.showOpenDialog(window);
-        return (result == JFileChooser.APPROVE_OPTION) ? fileChooser.getSelectedFile() : null;
-    }
+
 
 
 
@@ -267,6 +255,8 @@ public class MainGuiPanel implements GUIInterface {
     }
 
 
+
+    // Metoda tworząca pasek opcji
     private void createOptionsBar() {
         JMenu optionsMenu = new JMenu("Opcje");
 
