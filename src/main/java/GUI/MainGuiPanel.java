@@ -197,10 +197,11 @@ public class MainGuiPanel implements GUIInterface {
         openItem.addActionListener(e -> openMaze());
 
         // Dołączanie akcji do zapisywania labiryntu jako pliku tekstowego
-        saveItem.addActionListener(e -> saveMazeAsText());
+        saveItem.addActionListener(e -> FileIO.saveMazeAsText(mazeRenderer.getMazeImage(), window));
 
         // Dołączanie akcji do zapisywania labiryntu jako obrazu
-        saveImageItem.addActionListener(e -> saveMazeAsImage());
+        saveImageItem.addActionListener(e -> FileIO.saveMazeAsImage(mazeRenderer.getMazeImage(), window));
+
 
         // Dodawanie pozycji do menu pliku
         fileMenu.add(openItem);
@@ -220,13 +221,11 @@ public class MainGuiPanel implements GUIInterface {
 
                 // Sprawdzenie, czy plik jest plikiem binarnym
                 if (mazeFile.getName().endsWith(".bin")) {
-                    System.out.println("Odczytano plik binarny");
                     File txtFile = new File(temporaryMazeFile.getParent(), temporaryMazeFile.getName().replace(".bin", ".txt"));
 
                     Binary.convertBinaryToText(currentMazeFile.getAbsolutePath(), txtFile.getAbsolutePath());
                     temporaryMazeFile = txtFile;
                 }
-
                 BufferedImage image = FileIO.readMazeFromFile(temporaryMazeFile);
                 mazeRenderer.setMazeImage(image);
                 fitMazeToWindow();
@@ -236,67 +235,6 @@ public class MainGuiPanel implements GUIInterface {
             JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private void saveMazeAsText() {
-        if (mazeRenderer.getMazeImage() == null) {
-            JOptionPane.showMessageDialog(window, "Nie ma otwartego labiryntu do zapisania!", "Błąd", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Zapisz labirynt jako tekst");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Pliki tekstowe", "txt"));
-
-        int userSelection = fileChooser.showSaveDialog(window);
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName().endsWith(".txt") ? fileToSave.getName() : fileToSave.getName() + ".txt");
-
-            try {
-                FileIO.writeMazeToFile(mazeRenderer.getMazeImage(), fileToSave);
-                JOptionPane.showMessageDialog(window, "Labirynt został zapisany w " + fileToSave.getPath(), info, JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(window, "Nie udało się zapisać labiryntu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void saveMazeAsImage() {
-        if (mazeRenderer.getMazeImage() == null) {
-            JOptionPane.showMessageDialog(window, "Nie ma otwartego labiryntu do zapisania jako obraz!", "Błąd", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Zapisz obraz labiryntu");
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-
-        // Ustawienie filtrów dla popularnych typów obrazów
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Obrazy PNG", "png"));
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Obrazy JPEG", "jpg", "jpeg"));
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Obrazy Bitmap", "bmp"));
-
-
-        int userSelection = fileChooser.showSaveDialog(window);
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            String ext = ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
-            fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName().endsWith("." + ext) ? fileToSave.getName() : fileToSave.getName() + "." + ext);
-
-            try {
-                // Zapisywanie pliku obrazu
-                ImageIO.write(mazeRenderer.getMazeImage(), ext, fileToSave);
-                JOptionPane.showMessageDialog(window, "Obraz labiryntu został zapisany w " + fileToSave.getPath(), info, JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(window, "Nie udało się zapisać obrazu labiryntu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-
 
 
 
@@ -320,7 +258,6 @@ public class MainGuiPanel implements GUIInterface {
         zoomPanel.add(zoomOutButton);
         window.add(zoomPanel, BorderLayout.EAST);
     }
-
 
     // Metoda otwierająca plik z labiryntem
     public File openMazeFile() {
