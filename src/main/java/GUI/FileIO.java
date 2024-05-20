@@ -11,6 +11,9 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 
 
 
@@ -106,7 +109,7 @@ public class FileIO {
         }
     }
 
-    // Save maze data as an image
+    // Zachowuje labirynt jako obraz
     public static void saveMazeAsImage(BufferedImage mazeImage, JFrame window) {
         if (mazeImage == null) {
             JOptionPane.showMessageDialog(window, "Nie ma otwartego labiryntu do zapisania jako obraz!", "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -117,8 +120,6 @@ public class FileIO {
         fileChooser.setDialogTitle("Zapisz obraz labiryntu");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
-
-        // Ustawienie filtrów dla popularnych typów obrazów
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Obrazy PNG", "png"));
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Obrazy JPEG", "jpg", "jpeg"));
         fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Obrazy BMP", "bmp"));
@@ -130,6 +131,7 @@ public class FileIO {
             fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName().endsWith("." + ext) ? fileToSave.getName() : fileToSave.getName() + "." + ext);
 
             try {
+                // Zapisz obraz bezpośrednio bez zmiany rozmiaru
                 ImageIO.write(mazeImage, ext, fileToSave);
                 JOptionPane.showMessageDialog(window, "Obraz labiryntu został zapisany w " + fileToSave.getPath(), "Informacja", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
@@ -137,6 +139,11 @@ public class FileIO {
             }
         }
     }
+
+
+
+
+
 
 
     public static File openMazeFile(JFrame window) {
@@ -150,7 +157,7 @@ public class FileIO {
         return (result == JFileChooser.APPROVE_OPTION) ? fileChooser.getSelectedFile() : null;
     }
 
-    public static BufferedImage prepareMazeImage(File mazeFile, JFrame window) throws IOException {
+    public static BufferedImage prepareFile(File mazeFile) throws IOException {
         File temporaryMazeFile = createTemporaryFileCopy(mazeFile);
 
         // Sprawdzenie, czy plik jest plikiem binarnym i konwersja jeśli potrzeba
@@ -162,6 +169,18 @@ public class FileIO {
 
         // Wczytanie przygotowanego pliku do obrazu
         return readMazeFromFile(temporaryMazeFile);
+    }
+
+
+    public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage scaledImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = scaledImage.createGraphics();
+
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        g2d.dispose();
+
+        return scaledImage;
     }
 
 

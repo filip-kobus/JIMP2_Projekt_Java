@@ -1,10 +1,19 @@
 package GUI;
 
+
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 
 public class MazeUtilities {
+
+    private static int selectedState = 0; // 0 - brak wyboru, 1 - wejście, 2 - wyjście
+
+    // Ustawia stan wyboru
+    public static void setSelectedState(int state) {
+        selectedState = state;
+    }
 
     // Sprawdza, czy punkt (x, y) jest na krawędzi labiryntu
     public static boolean isEdge(int x, int y, int width, int height) {
@@ -12,18 +21,18 @@ public class MazeUtilities {
     }
 
     // Obsługuje wybór komórki labiryntu
-    public static void handleMazeCellSelection(MazeRenderer mazeRenderer, int imageX, int imageY, int selectedState, JFrame window) {
+    public static void handleMazeCellSelection(MazeRenderer mazeRenderer, int imageX, int imageY, JFrame window) {
         if (selectedState != 0) { // Jeśli wybieramy wejście lub wyjście
             if (isEdge(imageX, imageY, mazeRenderer.getMazeImage().getWidth(), mazeRenderer.getMazeImage().getHeight())) {
-
-                // Wybierz kolor na podstawie stanu
 
                 mazeRenderer.paintCell(imageX, imageY, selectedState); // Ustawia komórkę labiryntu
 
                 if (selectedState == 1) { // Jeśli wybrano punkt wejściowy
                     JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
+                    setSelectedState(2);
                 } else if (selectedState == 2) { // Jeśli wybrano punkt wyjściowy
                     JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Informacja", JOptionPane.INFORMATION_MESSAGE);
+                    setSelectedState(0);
                 }
             } else {
                 JOptionPane.showMessageDialog(window, "Wejście i wyjście można ustawiać tylko na krawędziach labiryntu.", "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -47,6 +56,7 @@ public class MazeUtilities {
 
         if (!foundP || !foundK) {
             showWarning(window);
+            setSelectedState(1);
         }
     }
 

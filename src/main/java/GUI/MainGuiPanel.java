@@ -14,7 +14,6 @@ public class MainGuiPanel implements GUIInterface {
     private JScrollPane scrollPane; // Scroll panel
     private double initialZoomFactor = 1.0; // Początkowy zoom
 
-    private int selectedState = 0; // 0 - nic, 1 - punkt początkowy, 2 - punkt końcowy
 
 
     private static final double ZOOM_IN_FACTOR = 1.1;
@@ -110,16 +109,10 @@ public class MainGuiPanel implements GUIInterface {
 
 
                     // Obsługa kliknięcia w komórkę labiryntu
-                    MazeUtilities.handleMazeCellSelection(mazeRenderer, imageX, imageY, selectedState, window);
+                    MazeUtilities.handleMazeCellSelection(mazeRenderer, imageX, imageY, window);
 
 
-                    // Zmiana stanu
-                    if (selectedState == 1){
-                        selectedState = 2;
-                    }
-                    else if (selectedState == 2){
-                        selectedState = 0;
-                    }
+
 
                 }
             }
@@ -194,7 +187,7 @@ public class MainGuiPanel implements GUIInterface {
         try {
             File mazeFile = FileIO.openMazeFile(window);
             if (mazeFile != null) {
-                BufferedImage image = FileIO.prepareMazeImage(mazeFile, window);
+                BufferedImage image = FileIO.prepareFile(mazeFile);
                 mazeRenderer.setMazeImage(image);
                 fitMazeToWindow();
                 MazeUtilities.checkForEntranceAndExit(mazeRenderer, window);
@@ -259,8 +252,9 @@ public class MainGuiPanel implements GUIInterface {
 
         setEntranceExitItem.addActionListener(e -> {
             if (mazeRenderer.getMazeImage() != null) {
+                MazeUtilities.setSelectedState(1);
                 MazeUtilities.resetEntranceAndExit(mazeRenderer, window);
-                selectedState = 1;
+
                 JOptionPane.showMessageDialog(window, "Wybierz punkt początkowy na labiryncie.", "Ustaw wejście i wyjście", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -270,6 +264,8 @@ public class MainGuiPanel implements GUIInterface {
         optionsMenu.add(setEntranceExitItem);
         menuBar.add(optionsMenu);
     }
+
+
 
 
 
