@@ -17,7 +17,6 @@ public class MazeRenderer {
     private double zoomFactor = 1.0;
     private File temporaryMazeFile;
 
-    private int selectedState = 0; // 0 - brak wyboru, 1 - wybór wejścia, 2 - wybór wyjścia
 
     public MazeRenderer(BufferedImage mazeImage) {
         this.mazeImage = mazeImage;
@@ -48,11 +47,6 @@ public class MazeRenderer {
         return mazePanel;
     }
 
-
-
-    public void setSelectedState(int state) {
-        this.selectedState = state;
-    }
 
     // Rysowanie komórki labiryntu
     public void paintCell(int x, int y, int state) {

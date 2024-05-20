@@ -1,9 +1,6 @@
 package GUI;
 
-import  Algorithm.Binary;
-
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -19,8 +16,6 @@ public class MainGuiPanel implements GUIInterface {
 
     private int selectedState = 0; // 0 - nic, 1 - punkt początkowy, 2 - punkt końcowy
 
-    private File currentMazeFile;
-    private File temporaryMazeFile; // Tymczasowy plik
 
     private static final double ZOOM_IN_FACTOR = 1.1;
     private static final double ZOOM_OUT_FACTOR = 0.9;

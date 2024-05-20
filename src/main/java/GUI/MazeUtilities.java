@@ -16,7 +16,6 @@ public class MazeUtilities {
         if (selectedState != 0) { // Jeśli wybieramy wejście lub wyjście
             if (isEdge(imageX, imageY, mazeRenderer.getMazeImage().getWidth(), mazeRenderer.getMazeImage().getHeight())) {
 
-                System.out.println(selectedState);
                 // Wybierz kolor na podstawie stanu
 
                 mazeRenderer.paintCell(imageX, imageY, selectedState); // Ustawia komórkę labiryntu
@@ -47,13 +46,14 @@ public class MazeUtilities {
         boolean foundK = found[1];
 
         if (!foundP || !foundK) {
-            showWarning(window, foundP, foundK);
+            showWarning(window);
         }
     }
 
     // Znajduje wejście i wyjście w labiryncie
     public static boolean[] findEntranceAndExit(BufferedImage image) {
-        boolean foundP = false, foundK = false;
+        boolean foundP = false;
+        boolean foundK = false;
         for (int y = 0; y < image.getHeight() && !(foundP && foundK); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int color = image.getRGB(x, y);
@@ -66,7 +66,7 @@ public class MazeUtilities {
     }
 
     // Pokazuje ostrzeżenie, jeśli brakuje wejścia lub wyjścia
-    private static void showWarning(JFrame window, boolean foundP, boolean foundK) {
+    private static void showWarning(JFrame window) {
         JOptionPane.showMessageDialog(window, "Brak punktu wejścia lub wyjścia. Wybierz je klikając na ścianę.", "Uwaga", JOptionPane.WARNING_MESSAGE);
     }
 
