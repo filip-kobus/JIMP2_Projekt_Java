@@ -9,11 +9,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-
-
-
-
 
 public class MainGuiPanel implements GUIInterface {
     private MazeRenderer mazeRenderer; // Labirynt
@@ -30,7 +25,8 @@ public class MainGuiPanel implements GUIInterface {
     private static final double ZOOM_IN_FACTOR = 1.1;
     private static final double ZOOM_OUT_FACTOR = 0.9;
 
-    private String info = "Informacja";
+
+
 
     public void run() {
         CreateMainPanel();
@@ -112,42 +108,27 @@ public class MainGuiPanel implements GUIInterface {
                     int imageX = (int) ((x - offsetX) / (mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor()));
                     int imageY = (int) ((y - offsetY) / (mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor()));
 
+
+
                     // Obsługa kliknięcia w komórkę labiryntu
-                    handleMazeCellSelection(imageX, imageY);
+                    MazeUtilities.handleMazeCellSelection(mazeRenderer, imageX, imageY, selectedState, window);
+
+
+                    // Zmiana stanu
+                    if (selectedState == 1){
+                        selectedState = 2;
+                    }
+                    else if (selectedState == 2){
+                        selectedState = 0;
+                    }
+
                 }
             }
         });
     }
 
-    // Metoda obsługująca wybór komórki labiryntu
-    private void handleMazeCellSelection(int imageX, int imageY) {
-        if (selectedState != 0) { // Jeśli jesteśmy w trakcie wybierania wejścia lub wyjścia
-            if (isEdge(imageX, imageY)) { // Sprawdza, czy punkt znajduje się na brzegu labiryntu
-                mazeRenderer.paintCell(imageX, imageY, selectedState); // Ustawia komórkę labiryntu
-
-                if (selectedState == 1) { // Jeśli wybrano punkt początkowy
-                    JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
-                    selectedState = 2; // Ustawienie stanu na wybór punktu końcowego
-                } else if (selectedState == 2) { // Jeśli wybrano punkt końcowy
-                    selectedState = 0; // Resetowanie stanu wyboru
-                    mazeRenderer.updateMazeData(); // Aktualizacja danych labiryntu
-                    JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", info, JOptionPane.INFORMATION_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(window, "Wejście i wyjście można ustawiać tylko na krawędziach labiryntu.", "Błąd", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", info, JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
 
 
-    // Metoda sprawdzająca czy punkt znajduje się na brzegu labiryntu
-    private boolean isEdge(int x, int y) {
-        int width = mazeRenderer.getMazeImage().getWidth();
-        int height = mazeRenderer.getMazeImage().getHeight();
-        return x == 0 || x == width - 1 || y == 0 || y == height - 1;
-    }
 
 
     // Metoda konfigurująca scroll panel
@@ -176,10 +157,6 @@ public class MainGuiPanel implements GUIInterface {
             scrollPane.repaint();
         }
     }
-
-
-
-
 
 
     // Metoda tworząca pasek z plikami
@@ -229,14 +206,12 @@ public class MainGuiPanel implements GUIInterface {
                 BufferedImage image = FileIO.readMazeFromFile(temporaryMazeFile);
                 mazeRenderer.setMazeImage(image);
                 fitMazeToWindow();
-                checkForEntranceAndExit();
+                MazeUtilities.checkForEntranceAndExit(mazeRenderer, window);
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
 
     // Metoda tworząca przyciski do zoomowania
     private void CreateZoomControls() {
@@ -292,50 +267,6 @@ public class MainGuiPanel implements GUIInterface {
     }
 
 
-
-
-    // Metoda sprawdzająca czy są punkty początkowy i końcowy
-    private void checkForEntranceAndExit() {
-        BufferedImage image = mazeRenderer.getMazeImage();
-        if (image == null) {
-            handleNoImage();
-            return;
-        }
-
-        boolean[] found = findEntranceAndExit(image);
-        boolean foundP = found[0];
-        boolean foundK = found[1];
-
-        if (!foundP || !foundK) {
-            showWarning(foundP, foundK);
-        } else {
-            selectedState = 0;
-        }
-    }
-
-    private boolean[] findEntranceAndExit(BufferedImage image) {
-        boolean foundP = false, foundK = false;
-        for (int y = 0; y < image.getHeight() && !(foundP && foundK); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                int color = image.getRGB(x, y);
-                if (color == Color.GREEN.getRGB()) foundP = true;
-                if (color == Color.RED.getRGB()) foundK = true;
-                if (foundP && foundK) break;
-            }
-        }
-        return new boolean[]{foundP, foundK};
-    }
-
-    private void showWarning(boolean foundP, boolean foundK) {
-        JOptionPane.showMessageDialog(window, "Brak punktu wejścia lub wyjścia. Wybierz je klikając na ścianę.", "Uwaga", JOptionPane.WARNING_MESSAGE);
-        selectedState = !foundP ? 1 : 2;
-    }
-
-    private void handleNoImage() {
-        JOptionPane.showMessageDialog(window, "No maze image found.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-
     private void createOptionsBar() {
         JMenu optionsMenu = new JMenu("Opcje");
 
@@ -343,8 +274,8 @@ public class MainGuiPanel implements GUIInterface {
 
         setEntranceExitItem.addActionListener(e -> {
             if (mazeRenderer.getMazeImage() != null) {
-                resetEntranceAndExit();
-                selectedState = 1; // Set state to choose entrance first
+                MazeUtilities.resetEntranceAndExit(mazeRenderer, window);
+                selectedState = 1;
                 JOptionPane.showMessageDialog(window, "Wybierz punkt początkowy na labiryncie.", "Ustaw wejście i wyjście", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -353,27 +284,6 @@ public class MainGuiPanel implements GUIInterface {
 
         optionsMenu.add(setEntranceExitItem);
         menuBar.add(optionsMenu);
-    }
-
-    private void resetEntranceAndExit() {
-        // Sprawdza, czy obraz labiryntu jest dostępny
-        if (mazeRenderer.getMazeImage() != null) {
-            BufferedImage image = mazeRenderer.getMazeImage();
-            for (int y = 0; y < image.getHeight(); y++) {
-                for (int x = 0; x < image.getWidth(); x++) {
-                    // Sprawdza, czy obecny piksel to wejście lub wyjście
-                    if (new Color(image.getRGB(x, y)).equals(Color.GREEN) || new Color(image.getRGB(x, y)).equals(Color.RED)) {
-                        image.setRGB(x, y, Color.GRAY.getRGB());  // Zmienia kolor na szary (ściana)
-                    }
-                }
-            }
-            mazeRenderer.setMazeImage(image); // Aktualizuje obraz labiryntu
-            mazeRenderer.getMazePanel().repaint(); // Odświeża panel z labiryntem
-            selectedState = 0; // Resetuje stan wyboru
-            JOptionPane.showMessageDialog(window, "Wejście i wyjście zostały zresetowane jako ściany.", "Reset", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
 

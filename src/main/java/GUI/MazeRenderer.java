@@ -17,6 +17,8 @@ public class MazeRenderer {
     private double zoomFactor = 1.0;
     private File temporaryMazeFile;
 
+    private int selectedState = 0; // 0 - brak wyboru, 1 - wybór wejścia, 2 - wybór wyjścia
+
     public MazeRenderer(BufferedImage mazeImage) {
         this.mazeImage = mazeImage;
         createMazePanel(); // Utworzenie panelu z labiryntem
@@ -48,18 +50,16 @@ public class MazeRenderer {
 
 
 
+    public void setSelectedState(int state) {
+        this.selectedState = state;
+    }
 
     // Rysowanie komórki labiryntu
-    public void paintCell(int x, int y, int selectedState) {
+    public void paintCell(int x, int y, int state) {
         if (mazeImage == null || x < 0 || y < 0 || x >= mazeImage.getWidth() || y >= mazeImage.getHeight()) return;
 
-        // Determine the color based on the selected state
-        Color color = Color.WHITE;
-        if (selectedState == 1) {
-            color = Color.GREEN;  // Wejscie
-        } else if (selectedState == 2) {
-            color = Color.RED;    // Wyjscie
-        }
+
+        Color color = state == 1 ? Color.GREEN : (state == 2 ? Color.RED : Color.GRAY);
 
         // Update the image pixel
         mazeImage.setRGB(x, y, color.getRGB());
