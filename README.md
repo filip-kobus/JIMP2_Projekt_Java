@@ -21,7 +21,9 @@ Ten projekt tworzy program do znajdowania ścieżki w labiryncie wczytanym z pli
 
 1. Sklonuj repozytorium: `git clone https://github.com/yourusername/labirynt-java.git`
 2. Przejdź do katalogu projektu: `cd labirynt-java`
-3. Skonfiguruj i uruchom projekt w ulubionym środowisku IDE (np. IntelliJ IDEA, Eclipse).
+3. Skonfiguruj i uruchom projekt w ulubionym środowisku IDE (np. IntelliJ IDEA, Eclipse), wymagany jest Maven.
+4. Uruchom program poprzez klasę Main.java
+5. Dodaj plik maze.txt do programu (znajduje się w katalogu głównym repozytorium)
 
 ## Autor
 
