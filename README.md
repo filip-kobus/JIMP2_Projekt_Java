@@ -1,0 +1,1 @@
+Ten projekt tworzy program do znajdowania ścieżki w labiryncie wczytanym z pliku tekstowego lub binarnego, wykorzystując algorytmy BFS i DFS. Kluczowym wyzwaniem jest efektywne zarządzanie pamięcią, spełniając limit 512 kB dla części napisanej w języku C.
