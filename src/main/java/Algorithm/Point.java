@@ -9,6 +9,7 @@ public class Point {
     public static final int isSpace = 1;
     public static final int isEntry = 2;
     public static final int isExit = 3;
+    public static final int isVisited = 4;
 
     public int getX() {
         return this.x;

@@ -22,9 +22,6 @@ public class MainGuiPanel implements GUIInterface {
     private static final double ZOOM_OUT_FACTOR = 0.9;
 
 
-
-
-
     // Metoda uruchamiająca GUI
     public void run() {
         CreateMainPanel();
