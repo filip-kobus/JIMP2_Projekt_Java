@@ -1,5 +1,7 @@
 package GUI;
 
+import FileIO.FileIO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
