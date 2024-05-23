@@ -1,6 +1,8 @@
-package GUI;
+package FileIO;
 
 import Algorithm.Binary;
+import Algorithm.DataArray;
+import Algorithm.Point;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -18,14 +20,12 @@ import java.io.IOException;
 import javax.swing.JFrame;
 
 
-
-
-
 public class FileIO {
 
     // Minimalne wymiary obrazu labiryntu
     private static final int MIN_WIDTH = 800;
     private static final int MIN_HEIGHT = 800;
+    private static DataArray dataArray;
 
     // Czytanie pliku z labiryntem
     public static BufferedImage readMazeFromFile(File file) throws IOException {
@@ -33,16 +33,25 @@ public class FileIO {
         int rows = lines.size();
         int cols = lines.isEmpty() ? 0 : lines.get(0).length();
 
+        dataArray = new DataArray(cols, rows);
+        Point currPoint = new Point();
+
         BufferedImage image = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 char ch = lines.get(y).charAt(x);
-                Color color = getColorFromChar(ch);
+                currPoint.setPoint(x, y, ch);
+                Color color = getColorFromChar(currPoint);
                 image.setRGB(x, y, color.getRGB());
+                dataArray.putPointIntoArray(currPoint);
             }
         }
         return image;
+    }
+
+    public DataArray getDataArray() {
+        return dataArray;
     }
 
     // Zapisywanie labiryntu do pliku
@@ -67,15 +76,14 @@ public class FileIO {
         return tempFile;
     }
 
-    // Metoda pomocnicza do konwersji znaku na kolor
-    private static Color getColorFromChar(char ch) {
-        switch (ch) {
-            case 'X': return Color.GRAY;
-            case 'P': return Color.GREEN;
-            case 'K': return Color.RED;
-            case ' ':
-            default:  return Color.WHITE;
-        }
+    // Metoda pomocnicza do odczytania koloru ze znaku
+    private static Color getColorFromChar(Point point) {
+        return switch (point.getType()) {
+            case Point.isWall -> Color.GRAY;
+            case Point.isEntry -> Color.GREEN;
+            case Point.isExit -> Color.RED;
+            default -> Color.WHITE;
+        };
     }
 
     // Metoda pomocnicza do konwersji koloru na znak
@@ -196,5 +204,4 @@ public class FileIO {
         // Wczytanie przygotowanego pliku do obrazu
         return readMazeFromFile(temporaryMazeFile);
     }
-
 }

@@ -1,5 +1,7 @@
 package GUI;
 
+import FileIO.FileIO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -18,9 +20,6 @@ public class MainGuiPanel implements GUIInterface {
 
     private static final double ZOOM_IN_FACTOR = 1.1;
     private static final double ZOOM_OUT_FACTOR = 0.9;
-
-
-
 
 
     // Metoda uruchamiająca GUI
