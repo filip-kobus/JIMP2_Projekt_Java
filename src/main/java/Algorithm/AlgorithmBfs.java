@@ -73,11 +73,12 @@ public class AlgorithmBfs {
     }
 
     public void printPathToArray() {
-        Point cords = childParentMap.get(this.exit);
+        Point nextPoint = childParentMap.get(this.exit);
 
-        while(cords != null && !cords.equals(this.entry)) {
-            this.dataArray.array[cords.getX()][cords.getY()] = 6;
-            cords = childParentMap.get(cords);
+        while(nextPoint != null) {
+            //cords to kolejny punkt to wyjscia do wejscia
+            this.dataArray.setAsPath(nextPoint);
+            nextPoint = childParentMap.get(nextPoint);
         }
     }
 }
