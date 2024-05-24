@@ -24,7 +24,6 @@ public class MazeRenderer {
     }
 
 
-
     // Tworzenie panelu z labiryntem
     public JPanel createMazePanel() {
         mazePanel = new JPanel() {

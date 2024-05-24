@@ -34,14 +34,15 @@ public class FileIO {
         int cols = lines.isEmpty() ? 0 : lines.get(0).length();
 
         dataArray = new DataArray(cols, rows);
-        Point currPoint = new Point();
+
 
         BufferedImage image = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 char ch = lines.get(y).charAt(x);
-                currPoint.setPoint(x, y, ch);
+                Point currPoint = new Point(x, y);
+                currPoint.setTypeByChar(ch);
                 Color color = getColorFromChar(currPoint);
                 image.setRGB(x, y, color.getRGB());
                 dataArray.putPointIntoArray(currPoint);

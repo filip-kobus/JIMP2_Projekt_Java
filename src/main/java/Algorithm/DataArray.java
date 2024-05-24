@@ -4,17 +4,20 @@ public class DataArray {
     int[][] array;
     Point entry;
     Point exit;
-    Point currentCell;
+    int width, height;
 
     public DataArray(int columns, int rows){
         array = new int[columns][rows];
+        this.width = columns;
+        this.height = rows;
     }
 
     public void putPointIntoArray(Point point) {
-        switch(point.getType()) {
+        switch (point.getType()) {
             case Point.isEntry -> this.entry = point;
             case Point.isExit -> this.exit = point;
         }
+
         this.array[point.getX()][point.getY()] = point.getType();
     }
 
@@ -28,13 +31,25 @@ public class DataArray {
         this.exit = newPoint;
     }
 
-    public void setCurrentCell() {
-        this.currentCell = this.entry;
+    public void setAsVisited(Point point) {
+        this.array[point.getX()][point.getY()] = Point.isVisited;
     }
 
-    public void setAsVisited(Point newPoint) {
-        this.array[this.currentCell.getX()][this.currentCell.getY()] = Point.isVisited;
-        this.currentCell = newPoint;
+    public void setAsSpace(Point point) {
+        this.array[point.getX()][point.getY()] = Point.isSpace;
+    }
+
+    public void setAsPath(Point point) {
+        this.array[point.getX()][point.getY()] = 6;
+    }
+
+    public void printMatrix() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                System.out.print(array[x][y] + " ");
+            }
+            System.out.println();
+        }
     }
 
 }
