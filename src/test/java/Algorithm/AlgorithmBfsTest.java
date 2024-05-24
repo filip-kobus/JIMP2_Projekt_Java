@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class AlgorithmBfsTest {
 
     @Test
@@ -22,7 +20,7 @@ class AlgorithmBfsTest {
             throw new RuntimeException(e);
         }
         AlgorithmBfs algorytm = new AlgorithmBfs(dataArray);
-        //algorytm.printPathToArray();
+        algorytm.printPathToArray();
         dataArray.printMatrix();
     }
 
