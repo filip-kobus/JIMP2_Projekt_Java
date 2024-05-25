@@ -3,14 +3,13 @@ package Algorithm;
 import java.util.Stack;
 
 public class AlgorithmDfs {
-    private MyStack<Integer> distance = new MyStack<>();
-    private MyStack<Point> pathToEnd = new MyStack<>();
-    private MyStack<Point> nodes = new MyStack<>();
+    private Stack<Point> pathToEnd = new Stack<>();
+    private Stack<Point> nodes = new Stack<>();
 
     public DataArray dataArray;
     private Point entry, exit, currCell;
     private int width, height;
-    boolean isMovingBack = false;
+    public boolean isMovingBack = false;
 
     public AlgorithmDfs(DataArray data) {
         this.dataArray = data;
@@ -19,23 +18,34 @@ public class AlgorithmDfs {
         this.entry = data.entry;
         this.exit = data.exit;
         this.currCell = this.entry;
-        this.distance.push(0);
+        this.pathToEnd.push(this.entry);
+        this.dataArray.setAsVisited(this.entry); // Oznaczamy punkt startowy jako odwiedzony
     }
 
     public boolean makeMove() {
-        if(isMovingBack) {
-            if(distance.decrementTopElement()) this.currCell = pathToEnd.pop();
-            else {
-                this.currCell = nodes.pop();
-                isMovingBack = false;
+        if (isMovingBack) {
+            if (!pathToEnd.isEmpty()) {
+                this.currCell = pathToEnd.pop();
+                this.dataArray.setAsUnusedPath(this.currCell); // Oznaczamy nieużywaną ścieżkę
             }
-            return false;
+            if (pathToEnd.isEmpty()) {
+                return false; // Nie znaleziono ścieżki
+            }
+            isMovingBack = false;
+        } else {
+            Point nextMove = findNextMove(currCell);
+            if (nextMove != null) {
+                this.currCell = nextMove;
+                pathToEnd.push(this.currCell);
+                this.dataArray.setAsVisited(this.currCell); // Oznaczamy komórkę jako odwiedzoną
+                if (this.currCell.equalCoordinates(this.exit)) {
+                    return true; // Znaleziono wyjście
+                }
+            } else {
+                isMovingBack = true;
+            }
         }
-        else {
-            currCell = findNextMove(currCell);
-            return this.currCell.equalCoordinates(this.exit);
-        }
-
+        return false;
     }
 
     public Point getMove() {
@@ -43,46 +53,23 @@ public class AlgorithmDfs {
     }
 
     private Point findNextMove(Point point) {
-        int routesCount = 0;
-        int [][] possibleRoutes = {
+        int[][] possibleRoutes = {
                 {0, -1},
                 {0, 1},
                 {-1, 0},
                 {1, 0}
         };
 
-        Point newPoint = null;
-        for(int[] route : possibleRoutes) {
+        for (int[] route : possibleRoutes) {
             int diffX = route[0];
             int diffY = route[1];
-            Point possbilePoint = point.movePoint(diffX, diffY);
-            if (isValidMove(possbilePoint)) {
-                newPoint = possbilePoint;
-                if(this.dataArray.isExit(possbilePoint)) return newPoint;
-                routesCount++;
+            Point possiblePoint = point.movePoint(diffX, diffY); // Tworzymy nowy punkt
+            if (isValidMove(possiblePoint)) {
+                return possiblePoint;
             }
         }
 
-        switch (routesCount) {
-            case 0 -> {
-                newPoint = pathToEnd.pop();
-                this.isMovingBack = true;
-                distance.decrementTopElement();
-            }
-
-            case 1 -> {
-                distance.incrementTopElement();
-                pathToEnd.push(newPoint);
-            }
-
-            default -> {
-                pathToEnd.push(newPoint);
-                distance.push(1);
-                nodes.push(point);
-            }
-        }
-
-        return newPoint;
+        return null; // Brak możliwych ruchów, trzeba się cofnąć
     }
 
     private boolean isValidMove(Point point) {
@@ -93,9 +80,7 @@ public class AlgorithmDfs {
             return false;
         }
 
-        int cellType = this.dataArray.array[x][y];
-        return cellType == Point.isSpace || cellType == Point.isExit; // Allow move to exit
+        int cellType = this.dataArray.getCellValue(x, y);
+        return cellType == Point.isSpace || cellType == Point.isExit; // Pozwalamy na ruch do wyjścia
     }
-
-
 }

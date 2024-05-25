@@ -51,9 +51,10 @@ public class FileIO {
         return image;
     }
 
-    public DataArray getDataArray() {
+    public static DataArray getDataArray() {
         return dataArray;
     }
+
 
     // Zapisywanie labiryntu do pliku
     public static void writeMazeToFile(BufferedImage image, File file) throws IOException {

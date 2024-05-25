@@ -26,8 +26,11 @@ public class AlgorithmBfs {
         this.dataArray.setAsSpace(exit);
         queue.add(currentCell);
 
-        while(!currentCell.equalCoordinates(exit)) {
+        while (!currentCell.equalCoordinates(exit)) {
             addPossibleMovesToQueue(currentCell);
+            if (queue.isEmpty()) {
+                break;
+            }
             currentCell = queue.remove();
         }
     }
@@ -35,21 +38,27 @@ public class AlgorithmBfs {
     private void addPossibleMovesToQueue(Point point) {
         int x = point.getX();
         int y = point.getY();
-        int [][] possibleRoutes = {
+        int[][] possibleRoutes = {
                 {1, 0},
                 {-1, 0},
                 {0, 1},
                 {0, -1}
         };
 
-        for(int[] route : possibleRoutes) {
+        for (int[] route : possibleRoutes) {
             int diffX = route[0];
             int diffY = route[1];
-            Point newPoint = point.movePoint(diffX, diffY);
-            if(this.dataArray.array[x + diffX][y + diffY]  == Point.isSpace) {
-                queue.add(newPoint);
-                this.dataArray.setAsVisited(newPoint);
-                this.childParentMap.put(newPoint, point);
+            int newX = x + diffX;
+            int newY = y + diffY;
+
+            // Sprawdzenie, czy nowe współrzędne są w zakresie
+            if (newX >= 0 && newY >= 0 && newX < dataArray.getWidth() && newY < dataArray.getHeight()) {
+                Point newPoint = point.movePoint(diffX, diffY);
+                if (this.dataArray.array[newX][newY] == Point.isSpace) {
+                    queue.add(newPoint);
+                    this.dataArray.setAsVisited(newPoint);
+                    this.childParentMap.put(newPoint, point);
+                }
             }
         }
     }
@@ -61,10 +70,10 @@ public class AlgorithmBfs {
         int width = this.dataArray.width;
         int height = this.dataArray.height;
 
-        if(x == width - 1) x--;
+        if (x == width - 1) x--;
         else if (x == 0) x++;
 
-        if(y == height - 1) y--;
+        if (y == height - 1) y--;
         else if (y == 0) y++;
 
         Point newPoint = new Point(x, y);
@@ -76,8 +85,8 @@ public class AlgorithmBfs {
     public void printPathToArray() {
         Point nextPoint = childParentMap.get(this.exit);
 
-        while(nextPoint != null) {
-            //cords to kolejny punkt to wyjscia do wejscia
+        while (nextPoint != null) {
+            // cords to kolejny punkt to wyjscia do wejscia
             this.dataArray.setAsPath(nextPoint);
             nextPoint = childParentMap.get(nextPoint);
         }
