@@ -15,10 +15,11 @@ public class AlgorithmBfs {
         this.dataArray = data;
         this.entry = data.entry;
         this.exit = data.exit;
-        runAlgorithm(this.entry, this.exit);
     }
 
-    private void runAlgorithm(Point currentCell, Point exit) {
+    public void runAlgorithm() {
+        Point currentCell = this.entry;
+        Point exit = this.exit;
         currentCell = findFirstMove(currentCell);
 
         // Ustawiam exit jako puste miejsce w tablicy aby program do niego dotarl

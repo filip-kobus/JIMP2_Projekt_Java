@@ -43,6 +43,15 @@ public class DataArray {
         this.array[point.getX()][point.getY()] = 6;
     }
 
+    public void switchPoint(Point point) {
+        if(this.array[point.getX()][point.getY()] == Point.isSpace) this.array[point.getX()][point.getY()] = Point.isVisited;
+        else if(this.array[point.getX()][point.getY()] == Point.isVisited) this.array[point.getX()][point.getY()] = 6;
+    }
+
+    public boolean isExit(Point point) {
+        return this.array[point.getX()][point.getY()] == Point.isExit;
+    }
+
     public void printMatrix() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
