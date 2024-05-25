@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-class AlgorithmBfsTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class AlgorithmDfsTest {
 
     @Test
-    void runAlgorithm() {
+    void makeMove() {
         String fileName = "maze.txt";
         File file = new File(fileName);
         DataArray dataArray;
@@ -19,13 +21,17 @@ class AlgorithmBfsTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        AlgorithmBfs algorytm = new AlgorithmBfs(dataArray);
-        algorytm.runAlgorithm();
+        AlgorithmDfs algorytm = new AlgorithmDfs(dataArray);
+        //dopoki algorytm zwraca false czyli nie znalazl wyjscia
+        while(!algorytm.makeMove()) {
+            //co iteracje pobieram z algorytmu kolejny punkt
+            Point currCell = algorytm.getMove();
 
-        //metoda ktora wypisuje wszystkie punkty ktore naleza do sciezki po kolei
-        algorytm.printPathToArray();
-        //wypisuje tablice ze sciezka
-        dataArray.printMatrix();
+            //wypisywanie na potrzeby testu
+            algorytm.dataArray.switchPoint(currCell);
+            algorytm.dataArray.printMatrix();
+            System.out.println();
+        }
     }
 
     public static DataArray readMazeFromFile(File file) throws IOException {
