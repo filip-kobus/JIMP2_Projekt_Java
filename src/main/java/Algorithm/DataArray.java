@@ -6,9 +6,7 @@ public class DataArray {
     Point exit;
     int width, height;
 
-    public static final int isUnusedPath = 7; // Stan dla nieużywanej ścieżki
-    public static final int isPath = 6; // Stan dla ścieżki (niebieskie)
-    public static final int isSpace = 1; // Stan dla przestrzeni (biały)
+    public static final int isUnusedPath = 7; // Dodajemy nowy stan dla nieużywanej ścieżki
 
     public DataArray(int columns, int rows) {
         array = new int[columns][rows];
@@ -40,11 +38,11 @@ public class DataArray {
     }
 
     public void setAsSpace(Point point) {
-        this.array[point.getX()][point.getY()] = isSpace;
+        this.array[point.getX()][point.getY()] = Point.isSpace;
     }
 
     public void setAsPath(Point point) {
-        this.array[point.getX()][point.getY()] = isPath;
+        this.array[point.getX()][point.getY()] = 6;
     }
 
     public void setAsUnusedPath(Point point) {
@@ -55,7 +53,7 @@ public class DataArray {
         if (this.array[point.getX()][point.getY()] == Point.isSpace) {
             this.array[point.getX()][point.getY()] = Point.isVisited;
         } else if (this.array[point.getX()][point.getY()] == Point.isVisited) {
-            this.array[point.getX()][point.getY()] = isPath;
+            this.array[point.getX()][point.getY()] = 6;
         }
     }
 
@@ -82,7 +80,7 @@ public class DataArray {
     }
 
     public boolean isPath(Point point) {
-        return this.array[point.getX()][point.getY()] == isPath;
+        return this.array[point.getX()][point.getY()] == 6;
     }
 
     public Point getEntry() {
@@ -93,18 +91,16 @@ public class DataArray {
         return exit;
     }
 
-    // Resetowanie ścieżek
     public void resetPaths() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (array[x][y] == isPath || array[x][y] == isUnusedPath || array[x][y] == Point.isVisited) {
-                    array[x][y] = isSpace;
+                if (array[x][y] == 6 || array[x][y] == isUnusedPath || array[x][y] == Point.isVisited) {
+                    array[x][y] = Point.isSpace;
                 }
             }
         }
     }
 
-    // Metoda do pobierania wartości komórki
     public int getCellValue(int x, int y) {
         return this.array[x][y];
     }

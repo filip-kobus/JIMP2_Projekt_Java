@@ -277,7 +277,7 @@ public class MainGuiPanel implements GUIInterface {
 
         resetPathsItem.addActionListener(e -> {
             if (dataArray != null) {
-                mazeRenderer.resetPaths(dataArray);
+//                mazeRenderer.resetPaths(dataArray);
             } else {
                 JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
             }

@@ -63,7 +63,7 @@ public class AlgorithmDfs {
         for (int[] route : possibleRoutes) {
             int diffX = route[0];
             int diffY = route[1];
-            Point possiblePoint = point.movePoint(diffX, diffY); // Tworzymy nowy punkt
+            Point possiblePoint = point.movePoint(diffX, diffY);
             if (isValidMove(possiblePoint)) {
                 return possiblePoint;
             }
@@ -80,7 +80,7 @@ public class AlgorithmDfs {
             return false;
         }
 
-        int cellType = this.dataArray.getCellValue(x, y);
-        return cellType == Point.isSpace || cellType == Point.isExit; // Pozwalamy na ruch do wyjścia
+        int cellType = this.dataArray.getCellValue(x, y); // Use public method to get cell value
+        return cellType == Point.isSpace || cellType == Point.isExit; // Allow move to exit
     }
 }

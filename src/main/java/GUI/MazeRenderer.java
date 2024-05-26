@@ -8,9 +8,10 @@ import Algorithm.Point;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.io.*;
-import java.util.List;
+
 
 public class MazeRenderer {
     private BufferedImage mazeImage; // Obrazek labiryntu
@@ -78,7 +79,7 @@ public class MazeRenderer {
 
         // Ustawienie koloru piksela
         mazeImage.setRGB(x, y, color.getRGB());
-        mazePanel.repaint(); // Upewnienie się, że panel z labiryntem zostanie odświeżony
+        SwingUtilities.invokeLater(() -> mazePanel.repaint()); // Upewnienie się, że panel z labiryntem zostanie odświeżony
     }
 
     // Aktualizacja danych labiryntu
@@ -108,15 +109,15 @@ public class MazeRenderer {
 
     private char getCharForColor(Color color) {
         if (color.equals(Color.BLUE)) {
-            return 'P'; // Oznaczamy ścieżkę
+            return 'P';
         } else if (color.equals(Color.RED)) {
-            return 'K'; // Oznaczamy koniec
+            return 'K';
         } else if (color.equals(Color.GRAY)) {
-            return 'X'; // Oznaczamy ścianę
+            return 'X';
         } else if (color.equals(Color.WHITE)) {
-            return ' '; // Oznaczamy nieużywane miejsce
+            return ' ';
         } else if (color.equals(Color.YELLOW)) {
-            return 'U';  // Oznaczamy zużyte miejsce
+            return 'U'; // Oznaczamy nieużywaną ścieżkę
         } else {
             return ' ';
         }
@@ -133,13 +134,9 @@ public class MazeRenderer {
 
     // Funkcja rozwiązania labiryntu za pomocą BFS w tle
     public void solveMazeWithBfs(DataArray dataArray) {
-        resetPaths(dataArray); // Resetowanie ścieżek
+//        resetPaths(dataArray);
 
-        // Utworzenie nowego wątku dla algorytmu BFS
-        SwingWorker<Void, Void> worker = new SwingWorker<>() { // SwingWorker pozwala na wykonywanie operacji w tle
-
-
-            // Funkcja doInBackground() wykonuje algorytm BFS w tle
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
                 AlgorithmBfs bfs = new AlgorithmBfs(dataArray);
@@ -148,23 +145,23 @@ public class MazeRenderer {
                 return null;
             }
 
-
-            // Funkcja done() wykonuje się po zakończeniu algorytmu BFS
             @Override
             protected void done() {
                 // Kolorowanie ścieżki na podstawie dataArray po zakończeniu algorytmu
-                for (int y = 0; y < dataArray.getHeight(); y++) {
-                    for (int x = 0; x < dataArray.getWidth(); x++) {
-                        Point point = new Point(x, y);
-                        if (dataArray.isPath(point)) {
-                            paintCell(x, y, 3); // Ścieżka na niebiesko
+                SwingUtilities.invokeLater(() -> {
+                    for (int y = 0; y < dataArray.getHeight(); y++) {
+                        for (int x = 0; x < dataArray.getWidth(); x++) {
+                            Point point = new Point(x, y);
+                            if (dataArray.isPath(point)) {
+                                paintCell(x, y, 3); // Ścieżka na niebiesko
+                            }
                         }
                     }
-                }
-
-                paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
-                paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
-                JOptionPane.showMessageDialog(null, "Ścieżka została znaleziona!", "BFS Solver", JOptionPane.INFORMATION_MESSAGE);
+                    // pokoluj start na zielono
+                    paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1);
+                    paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
+                    JOptionPane.showMessageDialog(null, "Ścieżka została znaleziona!", "BFS Solver", JOptionPane.INFORMATION_MESSAGE);
+                });
             }
         };
 
@@ -173,37 +170,33 @@ public class MazeRenderer {
 
     // Wizualizacja algorytmu DFS
     public void visualizeDfs(DataArray dataArray) {
-        resetPaths(dataArray); // Resetowanie ścieżek
-        SwingWorker<Void, Point> worker = new SwingWorker<>() { // SwingWorker pozwala na wykonywanie operacji w tle
-
-
-            AlgorithmDfs dfs = new AlgorithmDfs(dataArray); // Utworzenie obiektu algorytmu DFS
-            Point entry = dataArray.getEntry(); // Punkt startowy
-            Point exit = dataArray.getExit(); // Punkt końcowy
+//        resetPaths(dataArray);
+        SwingWorker<Void, Point> worker = new SwingWorker<>() {
+            AlgorithmDfs dfs = new AlgorithmDfs(dataArray);
+            Point entry = dataArray.getEntry();
+            Point exit = dataArray.getExit();
             boolean found = false;
 
             @Override
             protected Void doInBackground() throws Exception {
                 while (!found) {
-                    found = dfs.makeMove(); // Wykonanie ruchu
-                    Point currMove = dfs.getMove(); // Pobranie aktualnego ruchu
-                    publish(currMove); // Publikowanie ruchu
+                    found = dfs.makeMove();
+                    Point currMove = dfs.getMove();
+                    publish(currMove);
                     TimeUnit.MILLISECONDS.sleep(100); // Dodajemy opóźnienie dla wizualizacji
                 }
                 return null;
             }
 
-
-            // Funkcja process() wykonuje się po każdym ruchu
             @Override
             protected void process(List<Point> chunks) {
-                for (Point currMove : chunks) { // Dla każdego ruchu
-                    if (currMove.equalCoordinates(entry)) { // Jeśli ruch prowadzi do punktu startowego
+                for (Point currMove : chunks) {
+                    if (currMove.equalCoordinates(entry)) {
                         paintCell(currMove.getX(), currMove.getY(), 1);
-                    } else if (currMove.equalCoordinates(exit)) { // Jeśli ruch prowadzi do punktu końcowego
+                    } else if (currMove.equalCoordinates(exit)) {
                         paintCell(currMove.getX(), currMove.getY(), 2);
                     } else {
-                        if (dfs.isMovingBack) { // Jeśli ruch prowadzi do miejsca, z którego wracamy
+                        if (dfs.isMovingBack) {
                             paintCell(currMove.getX(), currMove.getY(), 5); // Odwiedzone miejsce, które nie prowadzi do wyjścia (żółte)
                         } else {
                             paintCell(currMove.getX(), currMove.getY(), 3); // Odwiedzone miejsce, które prowadzi do wyjścia (niebieskie)
@@ -222,22 +215,20 @@ public class MazeRenderer {
         worker.execute();
     }
 
-
-    // Resetowanie ścieżek
-    public void resetPaths(DataArray dataArray) {
-        if (dataArray != null) {
-            dataArray.resetPaths();
-            for (int y = 0; y < dataArray.getHeight(); y++) {
-                for (int x = 0; x < dataArray.getWidth(); x++) {
-                    if (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.getCellValue(x, y) == DataArray.isPath || dataArray.getCellValue(x, y) == DataArray.isUnusedPath) {
-                        paintCell(x, y, 4); // Resetowanie ścieżek do białego koloru
-                    }
-                }
-            }
-            paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
-            paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
-        }
-    }
+//    public void resetPaths(DataArray dataArray) {
+//        if (dataArray != null) {
+//            dataArray.resetPaths();
+//            for (int y = 0; y < dataArray.getHeight(); y++) {
+//                for (int x = 0; x < dataArray.getWidth(); x++) {
+//                    if (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.getCellValue(x, y) == DataArray.isPath || dataArray.getCellValue(x, y) == DataArray.isUnusedPath || dataArray.getCellValue(x, y) == Point.isVisited) {
+//                        paintCell(x, y, 4); // Resetowanie ścieżek do białego koloru
+//                    }
+//                }
+//            }
+//            paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
+//            paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
+//        }
+//    }
 
     // Ustawienie współczynnika powiększenia
     public void setZoomFactor(double factor) {
