@@ -163,7 +163,7 @@ public class MazeRenderer {
                         }
                     }
                     // pokoluj start na zielono
-                    paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1);
+                    paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
                     paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
                     JOptionPane.showMessageDialog(null, "Ścieżka została znaleziona!", "BFS Solver", JOptionPane.INFORMATION_MESSAGE);
                 });
@@ -227,21 +227,21 @@ public class MazeRenderer {
         worker.execute();
     }
 
-//    public void resetPaths(DataArray dataArray) {
-//        if (dataArray != null) {
-//            dataArray.resetPaths();
-//            for (int y = 0; y < dataArray.getHeight(); y++) {
-//                for (int x = 0; x < dataArray.getWidth(); x++) {
-//                    if (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.getCellValue(x, y) == DataArray.isPath || dataArray.getCellValue(x, y) == DataArray.isUnusedPath || dataArray.getCellValue(x, y) == Point.isVisited) {
-//                        paintCell(x, y, 4); // Resetowanie ścieżek do białego koloru
-//                    }
-//                }
-//            }
-//            paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
-//            paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
-//            lastHeadPosition = null; // Resetujemy pozycję główki
-//        }
-//    }
+    public void resetPaths(DataArray dataArray) {
+        if (dataArray != null) {
+            dataArray.resetPaths();
+            for (int y = 0; y < dataArray.getHeight(); y++) {
+                for (int x = 0; x < dataArray.getWidth(); x++) {
+                    if (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.getCellValue(x, y) == DataArray.isPath || dataArray.getCellValue(x, y) == DataArray.isUnusedPath || dataArray.getCellValue(x, y) == Point.isVisited) {
+                        paintCell(x, y, 4); // Resetowanie ścieżek do białego koloru
+                    }
+                }
+            }
+            paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
+            paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
+            lastHeadPosition = null; // Resetujemy pozycję główki
+        }
+    }
 
     // Ustawienie współczynnika powiększenia
     public void setZoomFactor(double factor) {
@@ -283,5 +283,9 @@ public class MazeRenderer {
 
     public void setDataArray(DataArray dataArray) {
         this.dataArray = dataArray;
+    }
+
+    public DataArray getDataArray() {
+        return dataArray;
     }
 }

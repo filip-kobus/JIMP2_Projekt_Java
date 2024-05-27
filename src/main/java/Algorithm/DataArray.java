@@ -7,6 +7,7 @@ public class DataArray {
     int width, height;
 
     public static final int isUnusedPath = 7; // Dodajemy nowy stan dla nieużywanej ścieżki
+    public static final int isPath = 6; // Dodajemy nowy stan dla ścieżki
 
     public DataArray(int columns, int rows) {
         array = new int[columns][rows];
@@ -24,13 +25,21 @@ public class DataArray {
     }
 
     public synchronized void setNewEntry(Point newPoint) {
-        this.array[this.entry.getX()][this.entry.getY()] = Point.isWall;
+        if (this.entry != null) {
+            this.array[this.entry.getX()][this.entry.getY()] = Point.isWall;
+        }
         this.entry = newPoint;
+        this.array[this.entry.getX()][this.entry.getY()] = Point.isEntry;
     }
 
     public synchronized void setNewExit(Point newPoint) {
-        this.array[this.exit.getX()][this.exit.getY()] = Point.isWall;
+        if (this.exit != null) {
+            this.array[this.exit.getX()][this.exit.getY()] = Point.isWall;
+        }
         this.exit = newPoint;
+        this.array[this.exit.getX()][this.exit.getY()] = Point.isExit;
+
+
     }
 
     public synchronized void setAsVisited(Point point) {
@@ -42,7 +51,7 @@ public class DataArray {
     }
 
     public synchronized void setAsPath(Point point) {
-        this.array[point.getX()][point.getY()] = 6;
+        this.array[point.getX()][point.getY()] = isPath;
     }
 
     public synchronized void setAsUnusedPath(Point point) {
@@ -53,7 +62,7 @@ public class DataArray {
         if (this.array[point.getX()][point.getY()] == Point.isSpace) {
             this.array[point.getX()][point.getY()] = Point.isVisited;
         } else if (this.array[point.getX()][point.getY()] == Point.isVisited) {
-            this.array[point.getX()][point.getY()] = 6;
+            this.array[point.getX()][point.getY()] = isPath;
         }
     }
 
@@ -80,7 +89,7 @@ public class DataArray {
     }
 
     public synchronized boolean isPath(Point point) {
-        return this.array[point.getX()][point.getY()] == 6;
+        return this.array[point.getX()][point.getY()] == isPath;
     }
 
     public synchronized Point getEntry() {
@@ -94,7 +103,7 @@ public class DataArray {
     public synchronized void resetPaths() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (array[x][y] == 6 || array[x][y] == isUnusedPath || array[x][y] == Point.isVisited) {
+                if (array[x][y] == isPath || array[x][y] == isUnusedPath || array[x][y] == Point.isVisited) {
                     array[x][y] = Point.isSpace;
                 }
             }
@@ -103,5 +112,16 @@ public class DataArray {
 
     public synchronized int getCellValue(int x, int y) {
         return this.array[x][y];
+    }
+
+    public synchronized void resetEntrances() {
+        if (this.entry != null) {
+            this.array[this.entry.getX()][this.entry.getY()] = Point.isWall;
+            this.entry = null;
+        }
+        if (this.exit != null) {
+            this.array[this.exit.getX()][this.exit.getY()] = Point.isWall;
+            this.exit = null;
+        }
     }
 }

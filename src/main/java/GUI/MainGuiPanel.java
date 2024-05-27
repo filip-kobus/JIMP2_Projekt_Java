@@ -1,6 +1,5 @@
 package GUI;
 
-
 import FileIO.FileIO;
 
 import javax.swing.*;
@@ -9,10 +8,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import Algorithm.AlgorithmBfs;
 import Algorithm.DataArray;
-import Algorithm.Point;
+
 
 public class MainGuiPanel implements GUIInterface {
     private MazeRenderer mazeRenderer; // Labirynt
@@ -65,8 +62,8 @@ public class MainGuiPanel implements GUIInterface {
     // Metoda tworząca panel z labiryntem
     @Override
     public void CreateMazePanel() {
-        mazeRenderer = new MazeRenderer(null); // Twożenie labiryntu
-        JPanel mazePanel = mazeRenderer.createMazePanel(); // Twożenie panelu z labiryntem
+        mazeRenderer = new MazeRenderer(null); // Tworzenie labiryntu
+        JPanel mazePanel = mazeRenderer.createMazePanel(); // Tworzenie panelu z labiryntem
 
         // Dodanie listenerów do panelu
         attachMouseWheelListener(mazePanel);
@@ -114,8 +111,6 @@ public class MainGuiPanel implements GUIInterface {
 
                     // Obsługa kliknięcia w komórkę labiryntu
                     MazeUtilities.handleMazeCellSelection(mazeRenderer, imageX, imageY, window);
-
-
                 }
             }
         });
@@ -187,7 +182,8 @@ public class MainGuiPanel implements GUIInterface {
             if (mazeFile != null) {
                 BufferedImage image = FileIO.prepareFile(mazeFile);
                 mazeRenderer.setMazeImage(image);
-                dataArray = FileIO.getDataArray();
+                dataArray = FileIO.getDataArray(); // Ustawia DataArray
+                mazeRenderer.setDataArray(dataArray); // Przekazuje DataArray do mazeRenderer
                 fitMazeToWindow();
                 MazeUtilities.checkForEntranceAndExit(mazeRenderer, window);
             }
@@ -247,6 +243,8 @@ public class MainGuiPanel implements GUIInterface {
         JMenuItem visualizeMazeItem = new JMenuItem("Wizualizuj szukanie ścieżki(DFS)");
         JMenuItem resetPathsItem = new JMenuItem("Resetuj ścieżki");
 
+        String erorrMessage = "Najpierw załaduj labirynt.";
+
         setEntranceExitItem.addActionListener(e -> {
             if (mazeRenderer.getMazeImage() != null) {
                 MazeUtilities.setSelectedState(1);
@@ -254,7 +252,7 @@ public class MainGuiPanel implements GUIInterface {
 
                 JOptionPane.showMessageDialog(window, "Wybierz punkt początkowy na labiryncie.", "Ustaw wejście i wyjście", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -263,7 +261,7 @@ public class MainGuiPanel implements GUIInterface {
             if (dataArray != null) {
                 mazeRenderer.solveMazeWithBfs(dataArray);
             } else {
-                JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -271,15 +269,15 @@ public class MainGuiPanel implements GUIInterface {
             if (dataArray != null) {
                 mazeRenderer.visualizeDfs(dataArray);
             } else {
-                JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         resetPathsItem.addActionListener(e -> {
             if (dataArray != null) {
-//                mazeRenderer.resetPaths(dataArray);
+                mazeRenderer.resetPaths(dataArray);
             } else {
-                JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -289,8 +287,4 @@ public class MainGuiPanel implements GUIInterface {
         optionsMenu.add(resetPathsItem);
         menuBar.add(optionsMenu);
     }
-
-
 }
-
-
