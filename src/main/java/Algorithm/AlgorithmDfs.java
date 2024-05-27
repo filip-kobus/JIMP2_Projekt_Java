@@ -22,7 +22,7 @@ public class AlgorithmDfs {
         this.dataArray.setAsVisited(this.entry); // Oznaczamy punkt startowy jako odwiedzony
     }
 
-    public boolean makeMove() {
+    public synchronized boolean makeMove() {
         if (isMovingBack) {
             if (!pathToEnd.isEmpty()) {
                 this.currCell = pathToEnd.pop();
@@ -48,7 +48,7 @@ public class AlgorithmDfs {
         return false;
     }
 
-    public Point getMove() {
+    public synchronized Point getMove() {
         return currCell;
     }
 
