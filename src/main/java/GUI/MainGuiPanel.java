@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import Algorithm.DataArray;
+import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class MainGuiPanel implements GUIInterface {
@@ -162,8 +164,7 @@ public class MainGuiPanel implements GUIInterface {
         saveItem.addActionListener(e -> FileIO.saveMazeAsText(mazeRenderer.getMazeImage(), window));
 
         // Dołączanie akcji do zapisywania labiryntu jako obrazu
-        saveImageItem.addActionListener(e -> FileIO.saveMazeAsImage(mazeRenderer.getMazeImage(), window, mazeRenderer.getMazePanel()));
-
+        saveImageItem.addActionListener(e -> FileIO.saveMazeAsImage(dataArray, window));
 
         // Dodawanie pozycji do menu pliku
         fileMenu.add(openItem);
@@ -287,4 +288,7 @@ public class MainGuiPanel implements GUIInterface {
         optionsMenu.add(resetPathsItem);
         menuBar.add(optionsMenu);
     }
+
+
+
 }

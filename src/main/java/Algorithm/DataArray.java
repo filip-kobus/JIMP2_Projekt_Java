@@ -1,5 +1,8 @@
 package Algorithm;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
 public class DataArray {
     int[][] array;
     Point entry;
@@ -20,7 +23,6 @@ public class DataArray {
             case Point.isEntry -> this.entry = point;
             case Point.isExit -> this.exit = point;
         }
-
         this.array[point.getX()][point.getY()] = point.getType();
     }
 
@@ -38,12 +40,16 @@ public class DataArray {
         }
         this.exit = newPoint;
         this.array[this.exit.getX()][this.exit.getY()] = Point.isExit;
-
-
     }
 
     public synchronized void setAsVisited(Point point) {
-        this.array[point.getX()][point.getY()] = Point.isVisited;
+        if (point.equalCoordinates(entry)) {
+            this.array[point.getX()][point.getY()] = Point.isEntry;
+        } else if (point.equalCoordinates(exit)) {
+            this.array[point.getX()][point.getY()] = Point.isExit;
+        } else {
+            this.array[point.getX()][point.getY()] = Point.isVisited;
+        }
     }
 
     public synchronized void setAsSpace(Point point) {
@@ -56,6 +62,10 @@ public class DataArray {
 
     public synchronized void setAsUnusedPath(Point point) {
         this.array[point.getX()][point.getY()] = isUnusedPath; // Ustawiamy jako nieużywaną ścieżkę
+    }
+
+    public synchronized void setAsExit(Point point) {
+        this.array[point.getX()][point.getY()] = Point.isExit; // Ustawiamy jako wyjście
     }
 
     public synchronized void switchPoint(Point point) {
@@ -124,4 +134,32 @@ public class DataArray {
             this.exit = null;
         }
     }
+
+    // Metoda rysująca labirynt na obrazie
+    public BufferedImage toBufferedImage(int cellSize) {
+        int imgWidth = width * cellSize;
+        int imgHeight = height * cellSize;
+        BufferedImage image = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = image.createGraphics();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                switch (array[x][y]) {
+                    case Point.isWall -> g2d.setColor(Color.GRAY);
+                    case Point.isEntry -> g2d.setColor(Color.GREEN);
+                    case Point.isExit -> g2d.setColor(Color.RED);
+                    case isPath -> g2d.setColor(Color.BLUE); // Ścieżka
+                    case isUnusedPath -> g2d.setColor(Color.YELLOW); // Nieużywana ścieżka
+                    case Point.isVisited -> g2d.setColor(Color.WHITE); // Odwiedzony
+                    default -> g2d.setColor(Color.WHITE); // Puste miejsce
+                }
+                g2d.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            }
+        }
+
+        g2d.dispose();
+        return image;
+    }
+
+
 }

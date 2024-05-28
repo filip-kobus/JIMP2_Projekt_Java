@@ -6,19 +6,16 @@ import Algorithm.Point;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.io.File;
-import java.io.IOException;
-import javax.swing.JFrame;
-
 
 public class FileIO {
 
@@ -34,7 +31,6 @@ public class FileIO {
         int cols = lines.isEmpty() ? 0 : lines.get(0).length();
 
         dataArray = new DataArray(cols, rows);
-
 
         BufferedImage image = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
 
@@ -55,7 +51,6 @@ public class FileIO {
         return dataArray;
     }
 
-
     // Zapisywanie labiryntu do pliku
     public static void writeMazeToFile(BufferedImage image, File file) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
@@ -70,7 +65,7 @@ public class FileIO {
         }
     }
 
-    // Tworznie kopii pliku
+    // Tworzenie kopii pliku
     public static File createTemporaryFileCopy(File originalFile) throws IOException {
         File tempFile = File.createTempFile("maze_", ".txt");
         tempFile.deleteOnExit();
@@ -127,12 +122,12 @@ public class FileIO {
         }
     }
 
-    // Zachowuje labirynt jako obraz
-    public static void saveMazeAsImage(BufferedImage mazeImage, JFrame window, JPanel mazePanel) {
-        if (mazeImage == null) {
+    public static void saveMazeAsImage(DataArray dataArray, JFrame window) {
+        if (dataArray == null) {
             JOptionPane.showMessageDialog(window, "Nie ma otwartego labiryntu do zapisania jako obraz!", "Błąd", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Zapisz obraz labiryntu");
@@ -149,38 +144,17 @@ public class FileIO {
             fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName().endsWith("." + ext) ? fileToSave.getName() : fileToSave.getName() + "." + ext);
 
             try {
-                BufferedImage imageToSave;
-                if (mazeImage.getWidth() < MIN_WIDTH && mazeImage.getHeight() < MIN_HEIGHT) {
-                    // Zrzut ekranu panelu labiryntu jeśli jest mniejszy niż minimalne wymiary
-                    imageToSave = new BufferedImage(mazePanel.getWidth(), mazePanel.getHeight(), BufferedImage.TYPE_INT_RGB);
-                    Graphics2D g2d = imageToSave.createGraphics();
-                    mazePanel.paint(g2d);
-                    g2d.dispose();
-                } else {
-                    // Skalowanie obrazu labiryntu do minimalnych wymiarów
-                    imageToSave = scaleImage(mazeImage, Math.max(MIN_WIDTH, mazeImage.getWidth()), Math.max(MIN_HEIGHT, mazeImage.getHeight()));
-                }
+                dataArray.printMatrix();
+                BufferedImage highResImage = dataArray.toBufferedImage(10); // 10 to rozmiar komórki w pikselach, można dostosować
 
                 // Zapis obrazu do pliku
-                ImageIO.write(imageToSave, ext, fileToSave);
+                ImageIO.write(highResImage, ext, fileToSave);
                 JOptionPane.showMessageDialog(window, "Obraz labiryntu został zapisany w " + fileToSave.getPath(), "Informacja", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(window, "Nie udało się zapisać obrazu labiryntu: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-
-    private static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
-        BufferedImage scaledImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = scaledImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
-        g2d.dispose();
-        return scaledImage;
-    }
-
 
     public static File openMazeFile(JFrame window) {
         JFileChooser fileChooser = new JFileChooser();

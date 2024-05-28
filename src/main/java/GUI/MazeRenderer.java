@@ -5,21 +5,20 @@ import Algorithm.AlgorithmDfs;
 import Algorithm.DataArray;
 import Algorithm.Point;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
+import javax.swing.*;
 import java.util.concurrent.TimeUnit;
-import java.io.*;
 
 public class MazeRenderer {
     private BufferedImage mazeImage; // Obrazek labiryntu
+
+    private DataArray dataArray;
+
     private JPanel mazePanel; // Panel, na którym jest rysowany labirynt
     private double initialZoomFactor = 1.0;
     private double zoomFactor = 1.0;
-    private File temporaryMazeFile;
-    private DataArray dataArray;
-    private Point lastHeadPosition = null; // Przechowujemy ostatnią pozycję główki
+    private Point lastHeadPosition = null; // Pozycja główki
 
     public MazeRenderer(BufferedImage mazeImage) {
         this.mazeImage = mazeImage;
@@ -49,10 +48,10 @@ public class MazeRenderer {
     }
 
     // Rysowanie komórki labiryntu
-    public synchronized void paintCell(int x, int y, int state) {
+    public void paintCell(int x, int y, int state) {
         if (mazeImage == null || x < 0 || y < 0 || x >= mazeImage.getWidth() || y >= mazeImage.getHeight()) return;
 
-        // Maja być pięć stanów: 0 - ściana, 1 - start, 2 - koniec, 3 - ścieżka, 4 - nieużywana ścieżka, 5 - obecna pozycja
+        // Maja być pięć stanów: 0 - ściana, 1 - start, 2 - koniec, 3 - ścieżka, 4 - nieużywana ścieżka, 5 - główka
         Color color;
         switch (state) {
             case 0:
@@ -74,7 +73,7 @@ public class MazeRenderer {
                 color = Color.YELLOW; // Dodatkowy kolor dla nieużywanej ścieżki
                 break;
             case 6:
-                color = new Color(128, 0, 128); // Fioletowy dla obecnej pozycji
+                color = Color.MAGENTA; // Główka
                 break;
             default:
                 color = Color.WHITE;
@@ -82,100 +81,36 @@ public class MazeRenderer {
 
         // Ustawienie koloru piksela
         mazeImage.setRGB(x, y, color.getRGB());
-        SwingUtilities.invokeLater(() -> mazePanel.repaint()); // Upewnienie się, że panel z labiryntem zostanie odświeżony
+        mazePanel.repaint(); // Upewnienie się, że panel z labiryntem zostanie odświeżony
     }
 
     // Aktualizacja danych labiryntu
     public void updateMazeData() {
-        if (temporaryMazeFile != null && mazeImage != null) {
-            try {
-                char[][] mazeChars = buildCharRepresentation();
-                saveMazeData(mazeChars, temporaryMazeFile);
-                JOptionPane.showMessageDialog(null, "Maze data updated and saved successfully.", "Update Successful", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Failed to save maze data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
+        // implementacja jeśli konieczna
     }
 
-    private char[][] buildCharRepresentation() {
-        char[][] mazeChars = new char[mazeImage.getHeight()][mazeImage.getWidth()];
-
-        for (int y = 0; y < mazeImage.getHeight(); y++) {
-            for (int x = 0; x < mazeImage.getWidth(); x++) {
-                mazeChars[y][x] = getCharForColor(new Color(mazeImage.getRGB(x, y)));
-            }
-        }
-
-        return mazeChars;
-    }
-
-    private char getCharForColor(Color color) {
-        if (color.equals(Color.BLUE)) {
-            return 'P';
-        } else if (color.equals(Color.RED)) {
-            return 'K';
-        } else if (color.equals(Color.GRAY)) {
-            return 'X';
-        } else if (color.equals(Color.WHITE)) {
-            return ' ';
-        } else if (color.equals(Color.YELLOW)) {
-            return 'U'; // Oznaczamy nieużywaną ścieżkę
-        } else if (color.equals(new Color(128, 0, 128))) {
-            return 'C'; // Oznaczamy obecną pozycję
-        } else {
-            return ' ';
-        }
-    }
-
-    private void saveMazeData(char[][] mazeChars, File file) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            for (char[] row : mazeChars) {
-                writer.write(row);
-                writer.newLine();
-            }
-        }
-    }
-
-    // Funkcja rozwiązania labiryntu za pomocą BFS w tle
+    // Funkcja rozwiązania labiryntu za pomocą BFS
     public void solveMazeWithBfs(DataArray dataArray) {
-//        resetPaths(dataArray);
+        AlgorithmBfs bfs = new AlgorithmBfs(dataArray);
+        bfs.runAlgorithm();
 
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() throws Exception {
-                AlgorithmBfs bfs = new AlgorithmBfs(dataArray);
-                bfs.runAlgorithm();
-                bfs.printPathToArray();
-                return null;
+        // Kolorowanie ścieżki na podstawie dataArray
+        for (int y = 0; y < dataArray.getHeight(); y++) {
+            for (int x = 0; x < dataArray.getWidth(); x++) {
+                Point point = new Point(x, y);
+                if (dataArray.isPath(point)) {
+                    paintCell(x, y, 3); // Ścieżka na niebiesko
+                }
             }
-
-            @Override
-            protected void done() {
-                // Kolorowanie ścieżki na podstawie dataArray po zakończeniu algorytmu
-                SwingUtilities.invokeLater(() -> {
-                    for (int y = 0; y < dataArray.getHeight(); y++) {
-                        for (int x = 0; x < dataArray.getWidth(); x++) {
-                            Point point = new Point(x, y);
-                            if (dataArray.isPath(point)) {
-                                paintCell(x, y, 3); // Ścieżka na niebiesko
-                            }
-                        }
-                    }
-                    // pokoluj start na zielono
-                    paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1); // Start na zielono
-                    paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
-                    JOptionPane.showMessageDialog(null, "Ścieżka została znaleziona!", "BFS Solver", JOptionPane.INFORMATION_MESSAGE);
-                });
-            }
-        };
-
-        worker.execute();
+        }
+        // pokoluj start na zielono
+        paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1);
+        paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
     }
 
     // Wizualizacja algorytmu DFS
     public void visualizeDfs(DataArray dataArray) {
-//        resetPaths(dataArray);
+        resetPaths(dataArray);
         SwingWorker<Void, Point> worker = new SwingWorker<>() {
             AlgorithmDfs dfs = new AlgorithmDfs(dataArray);
             Point entry = dataArray.getEntry();
@@ -188,33 +123,30 @@ public class MazeRenderer {
                     found = dfs.makeMove();
                     Point currMove = dfs.getMove();
                     publish(currMove);
-                    TimeUnit.MILLISECONDS.sleep(20); // Dodajemy opóźnienie dla wizualizacji
+                    TimeUnit.MILLISECONDS.sleep(60); // Zmniejszamy opóźnienie dla bardziej płynnej wizualizacji
                 }
                 return null;
             }
 
             @Override
-            protected void process(List<Point> chunks) {
+            protected void process(java.util.List<Point> chunks) {
                 for (Point currMove : chunks) {
-                    if (lastHeadPosition != null) {
-                        // Przywracanie koloru dla ostatniej pozycji główki
-                        if (dfs.isMovingBack) {
-                            paintCell(lastHeadPosition.getX(), lastHeadPosition.getY(), 5); // Odwiedzone miejsce, które nie prowadzi do wyjścia (żółte)
-                        } else {
-                            paintCell(lastHeadPosition.getX(), lastHeadPosition.getY(), 3); // Odwiedzone miejsce, które prowadzi do wyjścia (niebieskie)
-                        }
-                    }
-
-                    // Aktualizacja koloru obecnej pozycji na fioletowy
                     if (currMove.equalCoordinates(entry)) {
                         paintCell(currMove.getX(), currMove.getY(), 1);
                     } else if (currMove.equalCoordinates(exit)) {
                         paintCell(currMove.getX(), currMove.getY(), 2);
                     } else {
-                        paintCell(currMove.getX(), currMove.getY(), 6); // Obecna pozycja na fioletowo
+                        if (dfs.isMovingBack) {
+                            if (isIntersection(currMove)) {
+                                paintCell(currMove.getX(), currMove.getY(), 5); // Intersection (yellow)
+                            } else {
+                                paintCell(currMove.getX(), currMove.getY(), 4); // Backtracked path (white)
+                            }
+                        } else {
+                            paintCell(currMove.getX(), currMove.getY(), 3); // Path to exit (blue)
+                            dataArray.setAsPath(currMove); // Mark the path in dataArray as 6
+                        }
                     }
-
-                    lastHeadPosition = currMove; // Zapisujemy aktualną pozycję główki
                 }
             }
 
@@ -225,6 +157,28 @@ public class MazeRenderer {
         };
 
         worker.execute();
+    }
+
+    private boolean isIntersection(Point point) {
+        int x = point.getX();
+        int y = point.getY();
+        int count = 0;
+
+        int[][] directions = {
+                {0, -1}, {0, 1}, {-1, 0}, {1, 0}
+        };
+
+        for (int[] dir : directions) {
+            int nx = x + dir[0];
+            int ny = y + dir[1];
+            if (nx >= 0 && ny >= 0 && nx < dataArray.getWidth() && ny < dataArray.getHeight()) {
+                if (dataArray.getCellValue(nx, ny) == Point.isSpace || dataArray.getCellValue(nx, ny) == Point.isVisited) {
+                    count++;
+                }
+            }
+        }
+
+        return count >= 3;
     }
 
     public void resetPaths(DataArray dataArray) {
