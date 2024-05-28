@@ -138,13 +138,13 @@ public class MazeRenderer {
                     } else {
                         if (dfs.isMovingBack) {
                             if (isIntersection(currMove)) {
-                                paintCell(currMove.getX(), currMove.getY(), 5); // Intersection (yellow)
+                                paintCell(currMove.getX(), currMove.getY(), 5); // Nieużywana ścieżka (żółta)
                             } else {
-                                paintCell(currMove.getX(), currMove.getY(), 4); // Backtracked path (white)
+                                paintCell(currMove.getX(), currMove.getY(), 4); // Zuzycie sciezki (biale)
                             }
                         } else {
-                            paintCell(currMove.getX(), currMove.getY(), 3); // Path to exit (blue)
-                            dataArray.setAsPath(currMove); // Mark the path in dataArray as 6
+                            paintCell(currMove.getX(), currMove.getY(), 3); // Niebieska ścieżka
+                            dataArray.setAsPath(currMove); // Ustawienie punktu jako część ścieżki
                         }
                     }
                 }

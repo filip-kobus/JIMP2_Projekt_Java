@@ -21,14 +21,14 @@ public class AlgorithmDfs {
 
     public boolean makeMove() {
         if (stack.isEmpty()) {
-            return true; // No path found, but finished
+            return true; // Brak ścieżki
         }
 
         Point current = stack.peek();
 
         if (dataArray.isExit(current)) {
-            dataArray.setAsPath(current); // Mark the exit as part of the path
-            return true; // Path found
+            dataArray.setAsPath(current); // Ustawienie punktu jako część ścieżki
+            return true; // Ścieżka znaleziona
         }
 
         Point[] neighbors = {
@@ -45,15 +45,15 @@ public class AlgorithmDfs {
                 dataArray.setAsVisited(neighbor);
                 lastMove = neighbor;
                 isMovingBack = false;
-                return false; // Continue searching
+                return false; // Kontynuuj przeszukiwanie
             }
         }
 
-        // If no valid moves, backtrack
+        // Jeśli nie ma żadnych sąsiadów, wróć do poprzedniego punktu
         stack.pop();
         isMovingBack = true;
         lastMove = current;
-        return false; // Continue searching
+        return false; // Kontynuuj przeszukiwanie
     }
 
     private boolean isValidMove(Point point) {
