@@ -131,22 +131,22 @@ public class MazeRenderer {
             @Override
             protected void process(java.util.List<Point> chunks) {
                 for (Point currMove : chunks) {
-                    if (currMove.equalCoordinates(entry)) {
+                    if (currMove.equalCoordinates(entry)) { // Jeśli punkt jest punktem startowym
                         paintCell(currMove.getX(), currMove.getY(), 1);
-                    } else if (currMove.equalCoordinates(exit)) {
+                    } else if (currMove.equalCoordinates(exit)) { // Jeśli punkt jest punktem końcowym
                         paintCell(currMove.getX(), currMove.getY(), 2);
                     } else {
-                        if (dfs.isMovingBack) {
-                            if (isIntersection(currMove)) {
-                                paintCell(currMove.getX(), currMove.getY(), 5); // Nieużywana ścieżka (żółta)
-                            } else {
-                                paintCell(currMove.getX(), currMove.getY(), 4); // Zuzycie sciezki (biale)
-                            }
+                        if (dfs.isMovingBack) { // Jeśli algorytm wraca do poprzedniego punktu
+
+                            paintCell(currMove.getX(), currMove.getY(), 4); // Nieużywana ścieżka
+                            dataArray.setAsUnusedPath(currMove); // Ustawienie punktu jako nieużywana ścieżka
                         } else {
                             paintCell(currMove.getX(), currMove.getY(), 3); // Niebieska ścieżka
                             dataArray.setAsPath(currMove); // Ustawienie punktu jako część ścieżki
                         }
                     }
+
+
                 }
             }
 
