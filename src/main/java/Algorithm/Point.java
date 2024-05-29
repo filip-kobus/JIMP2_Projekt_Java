@@ -6,6 +6,7 @@ public class Point {
     private int x;
     private int y;
     private int type;
+    private Point parent; // Dodajemy pole parent
 
     public static final int isWall = 0;
     public static final int isSpace = 1;
@@ -30,16 +31,24 @@ public class Point {
         return this.type;
     }
 
+    public Point getParent() {
+        return this.parent;
+    }
+
+    public void setParent(Point parent) {
+        this.parent = parent;
+    }
+
     public void setX(int x) {
         this.x = x;
     }
 
     public void setY(int y) {
-       this.y = y;
+        this.y = y;
     }
 
     public void setTypeByInt(int type) {
-        if(type > 4 || type < 0) {
+        if (type > 4 || type < 0) {
             throw new Error("Błąd: Nieprawidłowy typ.");
         }
         this.type = type;
@@ -69,6 +78,7 @@ public class Point {
         int y = this.y + yDiff;
         Point point = new Point(x, y);
         point.setTypeByInt(isVisited);
+        point.setParent(this); // Ustawiamy parent jako bieżący punkt
         return point;
     }
 
@@ -88,5 +98,4 @@ public class Point {
     public int hashCode() {
         return Objects.hash(x, y);
     }
-
 }

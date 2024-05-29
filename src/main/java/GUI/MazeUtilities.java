@@ -1,6 +1,7 @@
 package GUI;
 
-
+import Algorithm.DataArray;
+import Algorithm.Point;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -22,15 +23,21 @@ public class MazeUtilities {
 
     // Obsługuje wybór komórki labiryntu
     public static void handleMazeCellSelection(MazeRenderer mazeRenderer, int imageX, int imageY, JFrame window) {
+        DataArray dataArray = mazeRenderer.getDataArray();
         if (selectedState != 0) { // Jeśli wybieramy wejście lub wyjście
             if (isEdge(imageX, imageY, mazeRenderer.getMazeImage().getWidth(), mazeRenderer.getMazeImage().getHeight())) {
 
                 mazeRenderer.paintCell(imageX, imageY, selectedState); // Ustawia komórkę labiryntu
 
+                Point point = new Point(imageX, imageY);
                 if (selectedState == 1) { // Jeśli wybrano punkt wejściowy
+                    point.setTypeByInt(Point.isEntry);
+                    dataArray.setNewEntry(point);
                     JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(2);
                 } else if (selectedState == 2) { // Jeśli wybrano punkt wyjściowy
+                    point.setTypeByInt(Point.isExit);
+                    dataArray.setNewExit(point);
                     JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Informacja", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(0);
                 }
@@ -88,7 +95,9 @@ public class MazeUtilities {
     // Resetuje punkty wejścia i wyjścia w labiryncie
     public static void resetEntranceAndExit(MazeRenderer mazeRenderer, JFrame window) {
         BufferedImage image = mazeRenderer.getMazeImage();
-        if (image != null) {
+        DataArray dataArray = mazeRenderer.getDataArray();
+        if (image != null && dataArray != null) {
+            dataArray.resetEntrances(); // Resetujemy wejścia i wyjścia w DataArray
             for (int y = 0; y < image.getHeight(); y++) {
                 for (int x = 0; x < image.getWidth(); x++) {
                     if (new Color(image.getRGB(x, y)).equals(Color.GREEN) || new Color(image.getRGB(x, y)).equals(Color.RED)) {
