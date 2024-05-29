@@ -19,9 +19,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileIO {
 
-    // Minimalne wymiary obrazu labiryntu
-    private static final int MIN_WIDTH = 800;
-    private static final int MIN_HEIGHT = 800;
+
+
     private static DataArray dataArray;
 
     // Czytanie pliku z labiryntem

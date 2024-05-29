@@ -22,11 +22,11 @@ public class Binary {
 
     public static void convertBinaryToText(String binaryFilePath, String textFilePath) throws IOException {
 
-        System.out.println("Aktywacja");
+
         try (DataInputStream binaryFile = new DataInputStream(new FileInputStream(binaryFilePath));
              BufferedWriter textFile = new BufferedWriter(new FileWriter(textFilePath))) {
 
-            System.out.println("Otwarcie pliku");
+
             // Wczytanie nagłówka pliku binarnego
             long fileId = readUnsignedIntLittleEndian(binaryFile);
             int escape = binaryFile.readUnsignedByte();
@@ -47,14 +47,6 @@ public class Binary {
             int wall = binaryFile.readUnsignedByte();
             int path = binaryFile.readUnsignedByte();
 
-            // Wypisanie wczytanych danych
-            System.out.println("Wymiary labiryntu: " + columns + " x " + lines);
-            System.out.println("Punkt wejścia: " + entryX + ", " + entryY);
-            System.out.println("Punkt wyjścia: " + exitX + ", " + exitY);
-            System.out.println("Separator: " + String.format("%02x", separator));
-            System.out.println("Ściana: " + (char) wall);
-            System.out.println("Ścieżka: " + (char) path);
-            System.out.println("Liczba słów kodowych: " + counter);
 
             if (solutionOffset > 0) { // Jeśli istnieje rozwiązanie
                 // Przesunięcie wskaźnika pliku na początek kodowania
@@ -64,7 +56,7 @@ public class Binary {
             // Generowanie labiryntu na podstawie kodowania
             generateMazeFromEncoding(binaryFile, textFile, counter, separator, wall, path, columns, lines, entryX, entryY, exitX, exitY);
 
-            System.out.println("Konwertowanie zakończone. Plik znajduje się w: " + textFilePath);
+
         }
     }
 

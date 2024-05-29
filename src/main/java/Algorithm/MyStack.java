@@ -14,7 +14,6 @@ public class MyStack<T> extends Stack<T> {
             if (!this.isEmpty()) {
                 this.pop();
             } else {
-                System.out.println("The stack is empty. Cannot pop more elements.");
                 break;
             }
         }

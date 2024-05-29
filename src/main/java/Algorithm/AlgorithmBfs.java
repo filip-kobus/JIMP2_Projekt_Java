@@ -6,7 +6,11 @@ import java.util.Queue;
 public class AlgorithmBfs {
     private Queue<Point> queue = new LinkedList<>();
     private DataArray dataArray;
-    private Point entry, exit, currCell;
+    private Point entry;
+
+    private Point exit;
+
+    private Point currCell;
     private boolean found = false;
 
     public AlgorithmBfs(DataArray dataArray) {

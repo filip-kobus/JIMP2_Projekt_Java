@@ -7,7 +7,8 @@ public class DataArray {
     int[][] array;
     Point entry;
     Point exit;
-    int width, height;
+    int width;
+    int height;
 
     public static final int isUnusedPath = 7; // Dodajemy nowy stan dla nieużywanej ścieżki
     public static final int isPath = 6; // Dodajemy nowy stan dla ścieżki
@@ -22,9 +23,10 @@ public class DataArray {
         switch (point.getType()) {
             case Point.isEntry -> this.entry = point;
             case Point.isExit -> this.exit = point;
+            default -> this.array[point.getX()][point.getY()] = point.getType();
         }
-        this.array[point.getX()][point.getY()] = point.getType();
     }
+
 
     public synchronized void setNewEntry(Point newPoint) {
         if (this.entry != null) {
@@ -83,9 +85,9 @@ public class DataArray {
     public synchronized void printMatrix() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                System.out.print(array[x][y] + " ");
+
             }
-            System.out.println();
+
         }
     }
 
@@ -98,7 +100,7 @@ public class DataArray {
         return width;
     }
 
-    public synchronized boolean isPath(Point point) {
+    public synchronized boolean hasPath(Point point) {
         return this.array[point.getX()][point.getY()] == isPath;
     }
 
