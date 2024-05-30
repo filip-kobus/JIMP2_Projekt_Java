@@ -257,6 +257,7 @@ public class MainGuiPanel implements GUIInterface {
             if (dataArray != null) {
                 stopVisualizationItem.setVisible(true); // Pokaż opcję przerwania
                 mazeRenderer.visualizeDfs(dataArray);
+                stopVisualizationItem.setVisible(false);
             } else {
                 JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
             }
