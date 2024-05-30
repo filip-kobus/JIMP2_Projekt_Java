@@ -1,18 +1,18 @@
 package Algorithm;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class AlgorithmDfs {
     private DataArray dataArray;
-    private Stack<Point> stack;
+    private Deque<Point> stack;
     private boolean[][] visited;
-    public boolean isMovingBack = false;
-
+    private boolean isMovingBack = false;
     private Point lastMove;
 
     public AlgorithmDfs(DataArray dataArray) {
         this.dataArray = dataArray;
-        this.stack = new Stack<>();
+        this.stack = new ArrayDeque<>();
         this.visited = new boolean[dataArray.getWidth()][dataArray.getHeight()];
         this.stack.push(dataArray.getEntry());
         this.visited[dataArray.getEntry().getX()][dataArray.getEntry().getY()] = true;
@@ -60,10 +60,18 @@ public class AlgorithmDfs {
         int x = point.getX();
         int y = point.getY();
         return x >= 0 && y >= 0 && x < dataArray.getWidth() && y < dataArray.getHeight()
-                && (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.isExit(point)) && !visited[x][y];
+                && (dataArray.getCellValue(x, y) == Point.IS_SPACE || dataArray.isExit(point)) && !visited[x][y];
     }
 
     public Point getMove() {
         return lastMove;
+    }
+
+    public boolean isMovingBack() {
+        return isMovingBack;
+    }
+
+    public void setMovingBack(boolean isMovingBack) {
+        this.isMovingBack = isMovingBack;
     }
 }

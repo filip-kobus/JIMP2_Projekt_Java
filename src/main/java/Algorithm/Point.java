@@ -3,16 +3,20 @@ package Algorithm;
 import java.util.Objects;
 
 public class Point {
+
+
+
     private int x;
     private int y;
     private int type;
     private Point parent; // Dodajemy pole parent
 
-    public static final int isWall = 0;
-    public static final int isSpace = 1;
-    public static final int isEntry = 2;
-    public static final int isExit = 3;
-    public static final int isVisited = 4;
+    public static final int IS_WALL = 0;
+    public static final int IS_SPACE = 1;
+    public static final int IS_ENTRY = 2;
+    public static final int IS_EXIT = 3;
+    public static final int IS_VISITED = 4;
+
 
     public Point(int x, int y) {
         this.x = x;
@@ -49,7 +53,7 @@ public class Point {
 
     public void setTypeByInt(int type) {
         if (type > 4 || type < 0) {
-            throw new Error("Błąd: Nieprawidłowy typ.");
+            throw new IllegalArgumentException("Błąd: Nieprawidłowy typ.");
         }
         this.type = type;
     }
@@ -57,30 +61,31 @@ public class Point {
     public void setTypeByChar(char symbol) {
         switch (symbol) {
             case 'X':
-                this.type = isWall;
+                this.type = IS_WALL;
                 break;
             case ' ':
-                this.type = isSpace;
+                this.type = IS_SPACE;
                 break;
             case 'P':
-                this.type = isEntry;
+                this.type = IS_ENTRY;
                 break;
             case 'K':
-                this.type = isExit;
+                this.type = IS_EXIT;
                 break;
             default:
-                throw new Error("Błąd: Nieprawidłowy typ.");
+                throw new IllegalArgumentException("Błąd: Nieprawidłowy typ.");
         }
     }
 
     protected Point movePoint(int xDiff, int yDiff) {
-        int x = this.x + xDiff;
-        int y = this.y + yDiff;
-        Point point = new Point(x, y);
-        point.setTypeByInt(isVisited);
+        int currentX = this.x + xDiff;
+        int currentY = this.y + yDiff;
+        Point point = new Point(currentX, currentY);
+        point.setTypeByInt(IS_VISITED);
         point.setParent(this); // Ustawiamy parent jako bieżący punkt
         return point;
     }
+
 
     public boolean equalCoordinates(Point point2) {
         return this.getX() == point2.getX() && this.getY() == point2.getY();

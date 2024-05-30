@@ -9,6 +9,9 @@ import javax.swing.*;
 
 public class MazeUtilities {
 
+    private MazeUtilities(){
+    }
+
     private static int selectedState = 0; // 0 - brak wyboru, 1 - wejście, 2 - wyjście
 
     // Ustawia stan wyboru
@@ -31,12 +34,12 @@ public class MazeUtilities {
 
                 Point point = new Point(imageX, imageY);
                 if (selectedState == 1) { // Jeśli wybrano punkt wejściowy
-                    point.setTypeByInt(Point.isEntry);
+                    point.setTypeByInt(Point.IS_ENTRY);
                     dataArray.setNewEntry(point);
                     JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(2);
                 } else if (selectedState == 2) { // Jeśli wybrano punkt wyjściowy
-                    point.setTypeByInt(Point.isExit);
+                    point.setTypeByInt(Point.IS_EXIT);
                     dataArray.setNewExit(point);
                     JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Informacja", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(0);

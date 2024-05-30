@@ -16,9 +16,9 @@ public class MainGuiPanel implements GUIInterface {
     private JFrame window;
     private JMenuBar menuBar;
     private JScrollPane scrollPane; // Scroll panel
-    private double initialZoomFactor = 1.0; // Początkowy zoom
+
     private DataArray dataArray; // Dodajemy pole na obiekt DataArray
-    private JMenuItem stopVisualizationItem; // Przycisk zatrzymania wizualizacji DFS
+
 
     private static final double ZOOM_IN_FACTOR = 1.1;
     private static final double ZOOM_OUT_FACTOR = 0.9;
@@ -28,7 +28,7 @@ public class MainGuiPanel implements GUIInterface {
         CreateMainPanel();
         CreateMazePanel();
         CreateFileReaderBar();
-        CreateZoomControls();
+        createZoomControls();
         createOptionsBar();
 
         JTabbedPane tabPanel = new JTabbedPane();
@@ -181,7 +181,7 @@ public class MainGuiPanel implements GUIInterface {
     }
 
     // Metoda tworząca przyciski do zoomowania
-    private void CreateZoomControls() {
+    private void createZoomControls() {
         JPanel zoomPanel = new JPanel(new GridLayout(2, 1));
         JButton zoomInButton = new JButton("+");
         JButton zoomOutButton = new JButton("-");
@@ -210,7 +210,8 @@ public class MainGuiPanel implements GUIInterface {
             double windowRatio = (double) windowWidth / windowHeight;
             double imageRatio = (double) mazeRenderer.getMazeImage().getWidth() / mazeRenderer.getMazeImage().getHeight();
 
-            initialZoomFactor = (windowRatio > imageRatio) ? (double) windowHeight / mazeRenderer.getMazeImage().getHeight()
+            // Obliczenie początkowego zoomu na podstawie proporcji okna i obrazu
+            double initialZoomFactor = (windowRatio > imageRatio) ? (double) windowHeight / mazeRenderer.getMazeImage().getHeight()
                     : (double) windowWidth / mazeRenderer.getMazeImage().getWidth();
 
             mazeRenderer.setInitialZoomFactor(initialZoomFactor);
@@ -227,7 +228,7 @@ public class MainGuiPanel implements GUIInterface {
         JMenuItem solveMazeItem = new JMenuItem("Znajdź najkrótszą ścieżkę(BFS)");
         JMenuItem visualizeMazeItem = new JMenuItem("Wizualizuj szukanie ścieżki(DFS)");
         JMenuItem resetPathsItem = new JMenuItem("Resetuj ścieżki");
-        stopVisualizationItem = new JMenuItem("Przerwij wizualizację");
+        JMenuItem stopVisualizationItem = new JMenuItem("Przerwij wizualizację");
         stopVisualizationItem.setVisible(false); // Ukryj na początku
 
         String erorrMessage = "Najpierw załaduj labirynt.";

@@ -106,7 +106,7 @@ public class MazeRenderer {
                 for (int y = 0; y < dataArray.getHeight(); y++) {
                     for (int x = 0; x < dataArray.getWidth(); x++) {
                         Point point = new Point(x, y);
-                        if (dataArray.isPath(point)) {
+                        if (dataArray.hasPath(point)) {
                             paintCell(x, y, 3); // Ścieżka na niebiesko
                         }
                     }
@@ -169,7 +169,7 @@ public class MazeRenderer {
         } else if (currMove.equalCoordinates(exit)) { // Jeśli punkt jest punktem końcowym
             paintCell(currMove.getX(), currMove.getY(), 2);
         } else {
-            if (dfs.isMovingBack) { // Jeśli algorytm wraca do poprzedniego punktu
+            if (dfs.isMovingBack()) { // Jeśli algorytm wraca do poprzedniego punktu
                 paintCell(currMove.getX(), currMove.getY(), 4); // Nieużywana ścieżka
                 dataArray.setAsUnusedPath(currMove); // Ustawienie punktu jako nieużywana ścieżka
             } else {
@@ -196,7 +196,8 @@ public class MazeRenderer {
             dataArray.resetPaths();
             for (int y = 0; y < dataArray.getHeight(); y++) {
                 for (int x = 0; x < dataArray.getWidth(); x++) {
-                    if (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.getCellValue(x, y) == DataArray.isPath || dataArray.getCellValue(x, y) == DataArray.isUnusedPath || dataArray.getCellValue(x, y) == Point.isVisited) {
+                    // Jeśli komórka jest ścieżką, nieużywaną ścieżką, odwiedzona lub pustą przestrzenią, to ją zresetuj
+                    if (dataArray.getCellValue(x, y) == Point.IS_SPACE || dataArray.getCellValue(x, y) == DataArray.IS_PATH || dataArray.getCellValue(x, y) == DataArray.IS_UNUSED_PATH || dataArray.getCellValue(x, y) == Point.IS_VISITED) {
                         paintCell(x, y, 4); // Resetowanie ścieżek do białego koloru
                     }
                 }

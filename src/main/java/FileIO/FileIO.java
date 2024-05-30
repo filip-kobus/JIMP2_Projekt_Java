@@ -19,9 +19,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileIO {
 
-    // Minimalne wymiary obrazu labiryntu
-    private static final int MIN_WIDTH = 800;
-    private static final int MIN_HEIGHT = 800;
+    private FileIO() {
+
+    }
+
     private static DataArray dataArray;
 
     // Czytanie pliku z labiryntem
@@ -76,9 +77,9 @@ public class FileIO {
     // Metoda pomocnicza do odczytania koloru ze znaku
     private static Color getColorFromChar(Point point) {
         return switch (point.getType()) {
-            case Point.isWall -> Color.GRAY;
-            case Point.isEntry -> Color.GREEN;
-            case Point.isExit -> Color.RED;
+            case Point.IS_WALL -> Color.GRAY;
+            case Point.IS_ENTRY -> Color.GREEN;
+            case Point.IS_EXIT -> Color.RED;
             default -> Color.WHITE;
         };
     }
