@@ -70,8 +70,4 @@ public class AlgorithmDfs {
     public boolean isMovingBack() {
         return isMovingBack;
     }
-
-    public void setMovingBack(boolean isMovingBack) {
-        this.isMovingBack = isMovingBack;
-    }
 }

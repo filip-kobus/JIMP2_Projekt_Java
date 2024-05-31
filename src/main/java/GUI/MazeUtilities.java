@@ -34,12 +34,12 @@ public class MazeUtilities {
 
                 Point point = new Point(imageX, imageY);
                 if (selectedState == 1) { // Jeśli wybrano punkt wejściowy
-                    point.setTypeByInt(Point.IS_ENTRY);
+                    point.setType(Point.IS_ENTRY);
                     dataArray.setNewEntry(point);
                     JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(2);
                 } else if (selectedState == 2) { // Jeśli wybrano punkt wyjściowy
-                    point.setTypeByInt(Point.IS_EXIT);
+                    point.setType(Point.IS_EXIT);
                     dataArray.setNewExit(point);
                     JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Informacja", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(0);

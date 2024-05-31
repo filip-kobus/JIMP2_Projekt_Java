@@ -51,14 +51,14 @@ public class Point {
         this.y = y;
     }
 
-    public void setTypeByInt(int type) {
+    public void setType(int type) {
         if (type > 4 || type < 0) {
             throw new IllegalArgumentException("Błąd: Nieprawidłowy typ.");
         }
         this.type = type;
     }
 
-    public void setTypeByChar(char symbol) {
+    public void setType(char symbol) {
         switch (symbol) {
             case 'X':
                 this.type = IS_WALL;
@@ -81,7 +81,7 @@ public class Point {
         int currentX = this.x + xDiff;
         int currentY = this.y + yDiff;
         Point point = new Point(currentX, currentY);
-        point.setTypeByInt(IS_VISITED);
+        point.setType(IS_VISITED);
         point.setParent(this); // Ustawiamy parent jako bieżący punkt
         return point;
     }

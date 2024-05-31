@@ -39,7 +39,7 @@ public class FileIO {
             for (int x = 0; x < cols; x++) {
                 char ch = lines.get(y).charAt(x);
                 Point currPoint = new Point(x, y);
-                currPoint.setTypeByChar(ch);
+                currPoint.setType(ch);
                 Color color = getColorFromChar(currPoint);
                 image.setRGB(x, y, color.getRGB());
                 dataArray.putPointIntoArray(currPoint);
@@ -128,7 +128,6 @@ public class FileIO {
             JOptionPane.showMessageDialog(window, "Nie ma otwartego labiryntu do zapisania jako obraz!", "Błąd", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Zapisz obraz labiryntu");

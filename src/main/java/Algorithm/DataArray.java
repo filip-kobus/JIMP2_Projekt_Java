@@ -56,10 +56,6 @@ public class DataArray {
         }
     }
 
-    public synchronized void setAsSpace(Point point) {
-        this.array[point.getX()][point.getY()] = Point.IS_SPACE;
-    }
-
     public synchronized void setAsPath(Point point) {
         this.array[point.getX()][point.getY()] = IS_PATH;
     }
@@ -70,14 +66,6 @@ public class DataArray {
 
     public synchronized void setAsExit(Point point) {
         this.array[point.getX()][point.getY()] = Point.IS_EXIT; // Ustawiamy jako wyjście
-    }
-
-    public synchronized void switchPoint(Point point) {
-        if (this.array[point.getX()][point.getY()] == Point.IS_SPACE) {
-            this.array[point.getX()][point.getY()] = Point.IS_VISITED;
-        } else if (this.array[point.getX()][point.getY()] == Point.IS_VISITED) {
-            this.array[point.getX()][point.getY()] = IS_PATH;
-        }
     }
 
     public synchronized boolean isExit(Point point) {
