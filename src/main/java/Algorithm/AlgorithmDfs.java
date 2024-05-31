@@ -1,18 +1,18 @@
 package Algorithm;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class AlgorithmDfs {
     private DataArray dataArray;
-    private Stack<Point> stack;
+    private Deque<Point> stack;
     private boolean[][] visited;
-    public boolean isMovingBack = false;
-
+    private boolean isMovingBack = false;
     private Point lastMove;
 
     public AlgorithmDfs(DataArray dataArray) {
         this.dataArray = dataArray;
-        this.stack = new Stack<>();
+        this.stack = new ArrayDeque<>();
         this.visited = new boolean[dataArray.getWidth()][dataArray.getHeight()];
         this.stack.push(dataArray.getEntry());
         this.visited[dataArray.getEntry().getX()][dataArray.getEntry().getY()] = true;
@@ -21,17 +21,17 @@ public class AlgorithmDfs {
 
     public boolean makeMove() {
         if (stack.isEmpty()) {
-            return true; // Brak ścieżki
+            return true; // Brak rozwiązania
         }
 
         Point current = stack.peek();
 
         if (dataArray.isExit(current)) {
-            dataArray.setAsPath(current); // Ustawienie punktu jako część ścieżki
-            return true; // Ścieżka znaleziona
+           // Wyjście znalezione
+            return true;
         }
 
-        Point[] neighbors = {
+        Point[] neighbors = { //punkty sąsiadujące
                 new Point(current.getX() - 1, current.getY()),
                 new Point(current.getX() + 1, current.getY()),
                 new Point(current.getX(), current.getY() - 1),
@@ -49,7 +49,7 @@ public class AlgorithmDfs {
             }
         }
 
-        // Jeśli nie ma żadnych sąsiadów, wróć do poprzedniego punktu
+        // Jeśli nie ma gdzie dalej iść, wróć do poprzedniego punktu
         stack.pop();
         isMovingBack = true;
         lastMove = current;
@@ -60,10 +60,18 @@ public class AlgorithmDfs {
         int x = point.getX();
         int y = point.getY();
         return x >= 0 && y >= 0 && x < dataArray.getWidth() && y < dataArray.getHeight()
-                && (dataArray.getCellValue(x, y) == Point.isSpace || dataArray.isExit(point)) && !visited[x][y];
+                && (dataArray.getCellValue(x, y) == Point.IS_SPACE || dataArray.isExit(point)) && !visited[x][y];
     }
 
     public Point getMove() {
         return lastMove;
+    }
+
+    public boolean isMovingBack() {
+        return isMovingBack;
+    }
+
+    public void setMovingBack(boolean isMovingBack) {
+        this.isMovingBack = isMovingBack;
     }
 }

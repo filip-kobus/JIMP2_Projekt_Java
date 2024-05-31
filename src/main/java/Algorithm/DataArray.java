@@ -7,10 +7,12 @@ public class DataArray {
     int[][] array;
     Point entry;
     Point exit;
-    int width, height;
+    int width;
+    int height;
 
-    public static final int isUnusedPath = 7; // Dodajemy nowy stan dla nieużywanej ścieżki
-    public static final int isPath = 6; // Dodajemy nowy stan dla ścieżki
+    public static final int IS_UNUSED_PATH = 7; // Dodajemy nowy stan dla nieużywanej ścieżki
+    public static final int IS_PATH = 6; // Dodajemy nowy stan dla ścieżki
+
 
     public DataArray(int columns, int rows) {
         array = new int[columns][rows];
@@ -19,65 +21,67 @@ public class DataArray {
     }
 
     public synchronized void putPointIntoArray(Point point) {
-        switch (point.getType()) {
-            case Point.isEntry -> this.entry = point;
-            case Point.isExit -> this.exit = point;
+        if (point.getType() == Point.IS_ENTRY) {
+            this.entry = point;
+        } else if (point.getType() == Point.IS_EXIT) {
+            this.exit = point;
         }
         this.array[point.getX()][point.getY()] = point.getType();
     }
 
+
     public synchronized void setNewEntry(Point newPoint) {
         if (this.entry != null) {
-            this.array[this.entry.getX()][this.entry.getY()] = Point.isWall;
+            this.array[this.entry.getX()][this.entry.getY()] = Point.IS_WALL;
         }
         this.entry = newPoint;
-        this.array[this.entry.getX()][this.entry.getY()] = Point.isEntry;
+        this.array[this.entry.getX()][this.entry.getY()] = Point.IS_WALL;
     }
 
     public synchronized void setNewExit(Point newPoint) {
         if (this.exit != null) {
-            this.array[this.exit.getX()][this.exit.getY()] = Point.isWall;
+            this.array[this.exit.getX()][this.exit.getY()] = Point.IS_WALL;
         }
         this.exit = newPoint;
-        this.array[this.exit.getX()][this.exit.getY()] = Point.isExit;
+        this.array[this.exit.getX()][this.exit.getY()] = Point.IS_EXIT;
     }
 
     public synchronized void setAsVisited(Point point) {
         if (point.equalCoordinates(entry)) {
-            this.array[point.getX()][point.getY()] = Point.isEntry;
+            this.array[point.getX()][point.getY()] = Point.IS_ENTRY;
         } else if (point.equalCoordinates(exit)) {
-            this.array[point.getX()][point.getY()] = Point.isExit;
+            this.array[point.getX()][point.getY()] = Point.IS_EXIT;
         } else {
-            this.array[point.getX()][point.getY()] = Point.isVisited;
+            this.array[point.getX()][point.getY()] = Point.IS_VISITED;
         }
     }
 
     public synchronized void setAsSpace(Point point) {
-        this.array[point.getX()][point.getY()] = Point.isSpace;
+        this.array[point.getX()][point.getY()] = Point.IS_SPACE;
     }
 
     public synchronized void setAsPath(Point point) {
-        this.array[point.getX()][point.getY()] = isPath;
+        this.array[point.getX()][point.getY()] = IS_PATH;
     }
 
     public synchronized void setAsUnusedPath(Point point) {
-        this.array[point.getX()][point.getY()] = isUnusedPath; // Ustawiamy jako nieużywaną ścieżkę
+        this.array[point.getX()][point.getY()] = IS_UNUSED_PATH; // Ustawiamy jako nieużywaną ścieżkę
     }
 
     public synchronized void setAsExit(Point point) {
-        this.array[point.getX()][point.getY()] = Point.isExit; // Ustawiamy jako wyjście
+        this.array[point.getX()][point.getY()] = Point.IS_EXIT; // Ustawiamy jako wyjście
     }
 
     public synchronized void switchPoint(Point point) {
-        if (this.array[point.getX()][point.getY()] == Point.isSpace) {
-            this.array[point.getX()][point.getY()] = Point.isVisited;
-        } else if (this.array[point.getX()][point.getY()] == Point.isVisited) {
-            this.array[point.getX()][point.getY()] = isPath;
+        if (this.array[point.getX()][point.getY()] == Point.IS_SPACE) {
+            this.array[point.getX()][point.getY()] = Point.IS_VISITED;
+        } else if (this.array[point.getX()][point.getY()] == Point.IS_VISITED) {
+            this.array[point.getX()][point.getY()] = IS_PATH;
         }
     }
 
     public synchronized boolean isExit(Point point) {
-        return this.array[point.getX()][point.getY()] == Point.isExit;
+        return this.array[point.getX()][point.getY()] == Point.IS_EXIT;
     }
 
     public synchronized void printMatrix() {
@@ -98,8 +102,8 @@ public class DataArray {
         return width;
     }
 
-    public synchronized boolean isPath(Point point) {
-        return this.array[point.getX()][point.getY()] == isPath;
+    public synchronized boolean hasPath(Point point) {
+        return this.array[point.getX()][point.getY()] == IS_PATH;
     }
 
     public synchronized Point getEntry() {
@@ -113,8 +117,8 @@ public class DataArray {
     public synchronized void resetPaths() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (array[x][y] == isPath || array[x][y] == isUnusedPath || array[x][y] == Point.isVisited) {
-                    array[x][y] = Point.isSpace;
+                if (array[x][y] == IS_PATH || array[x][y] == IS_UNUSED_PATH || array[x][y] == Point.IS_VISITED) {
+                    array[x][y] = Point.IS_SPACE;
                 }
             }
         }
@@ -126,11 +130,11 @@ public class DataArray {
 
     public synchronized void resetEntrances() {
         if (this.entry != null) {
-            this.array[this.entry.getX()][this.entry.getY()] = Point.isWall;
+            this.array[this.entry.getX()][this.entry.getY()] = Point.IS_WALL;
             this.entry = null;
         }
         if (this.exit != null) {
-            this.array[this.exit.getX()][this.exit.getY()] = Point.isWall;
+            this.array[this.exit.getX()][this.exit.getY()] = Point.IS_WALL;
             this.exit = null;
         }
     }
@@ -145,12 +149,12 @@ public class DataArray {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 switch (array[x][y]) {
-                    case Point.isWall -> g2d.setColor(Color.GRAY);
-                    case Point.isEntry -> g2d.setColor(Color.GREEN);
-                    case Point.isExit -> g2d.setColor(Color.RED);
-                    case isPath -> g2d.setColor(Color.BLUE); // Ścieżka
-                    case isUnusedPath -> g2d.setColor(Color.YELLOW); // Nieużywana ścieżka
-                    case Point.isVisited -> g2d.setColor(Color.WHITE); // Odwiedzony
+                    case Point.IS_WALL -> g2d.setColor(Color.GRAY);
+                    case Point.IS_ENTRY -> g2d.setColor(Color.GREEN);
+                    case Point.IS_EXIT -> g2d.setColor(Color.RED);
+                    case IS_PATH -> g2d.setColor(Color.BLUE); // Ścieżka
+                    case IS_UNUSED_PATH -> g2d.setColor(Color.WHITE); // Nieużywana ścieżka
+                    case Point.IS_VISITED -> g2d.setColor(Color.WHITE); //
                     default -> g2d.setColor(Color.WHITE); // Puste miejsce
                 }
                 g2d.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
