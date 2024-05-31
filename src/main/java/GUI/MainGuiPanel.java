@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class MainGuiPanel implements GUIInterface {
+public class MainGuiPanel {
     private MazeRenderer mazeRenderer; // Labirynt
     private JFrame window;
     private JMenuBar menuBar;
@@ -39,7 +39,6 @@ public class MainGuiPanel implements GUIInterface {
     }
 
     // Metoda tworząca główny panel
-    @Override
     public void CreateMainPanel() {
         window = new JFrame("Maze Solver - Kobus&Dutkiewicz");
         window.setIconImage(new ImageIcon("src/gallery/logo.png").getImage());
@@ -56,7 +55,6 @@ public class MainGuiPanel implements GUIInterface {
     }
 
     // Metoda tworząca panel z labiryntem
-    @Override
     public void CreateMazePanel() {
         mazeRenderer = new MazeRenderer(null); // Tworzenie labiryntu
         JPanel mazePanel = mazeRenderer.createMazePanel(); // Tworzenie panelu z labiryntem
@@ -135,7 +133,6 @@ public class MainGuiPanel implements GUIInterface {
     }
 
     // Metoda tworząca pasek z plikami
-    @Override
     public void CreateFileReaderBar() {
         menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Plik");
