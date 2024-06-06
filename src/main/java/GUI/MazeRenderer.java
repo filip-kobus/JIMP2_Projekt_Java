@@ -164,9 +164,9 @@ public class MazeRenderer {
     }
 
     private void processPoint(Point currMove, Point entry, Point exit, AlgorithmDfs dfs, DataArray dataArray) {
-        if (currMove.equalCoordinates(entry)) { // Jeśli punkt jest punktem startowym
+        if (currMove.equals(entry)) { // Jeśli punkt jest punktem startowym
             paintCell(currMove.getX(), currMove.getY(), 1);
-        } else if (currMove.equalCoordinates(exit)) { // Jeśli punkt jest punktem końcowym
+        } else if (currMove.equals(exit)) { // Jeśli punkt jest punktem końcowym
             paintCell(currMove.getX(), currMove.getY(), 2);
         } else {
             if (dfs.isMovingBack()) { // Jeśli algorytm wraca do poprzedniego punktu

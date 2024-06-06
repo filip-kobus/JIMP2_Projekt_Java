@@ -20,19 +20,22 @@ public class AlgorithmBfs {
         this.dataArray.setAsVisited(this.entry); // Oznaczamy punkt startowy jako odwiedzony
     }
 
-    public void runAlgorithm() {
+    public boolean runAlgorithm() {
         while (!queue.isEmpty() && !found) {
             currCell = queue.poll();
 
-            if (currCell.equalCoordinates(exit)) {
+            if (currCell.equals(exit)) {
                 found = true;
                 markPath(currCell); // Zaznaczamy ścieżkę od wyjścia do wejścia
                 dataArray.setAsExit(currCell); // Oznaczamy wyjście jako wyjście
                 continue;
             }
 
+
             addPossibleMovesToQueue(currCell);
         }
+
+        return true;
     }
 
     private void addPossibleMovesToQueue(Point point) {
@@ -70,7 +73,7 @@ public class AlgorithmBfs {
     private void markPath(Point end) {
         Point step = end;
         while (step != null) {
-            if (!step.equalCoordinates(entry) && !step.equalCoordinates(exit)) {
+            if (!step.equals(entry) && !step.equals(exit)) {
                 dataArray.setAsPath(step); // Oznaczamy ścieżkę
             }
             step = step.getParent();

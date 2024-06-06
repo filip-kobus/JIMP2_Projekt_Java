@@ -1,0 +1,27 @@
+
+G
+src/main/java/Main.java,e\4\e44a8606ce010ad9b89aafdfcee2ab49afbf6d10
+S
+#src/main/java/GUI/MainGuiPanel.java,0\e\0e627313b214f1a30136af0548c27a3a83fdc055
+R
+"src/main/java/Algorithm/Point.java,e\e\eecc2aa2bd8b292c26f543ecc7ccfd5f77dc09d7
+V
+&src/main/java/Algorithm/DataArray.java,5\2\52c70005df888fcd62b38e96620cca3cc2e4e746
+S
+#src/main/java/Algorithm/Binary.java,c\3\c313dca322924d28f704a39ce618f37dbeaef56e
+P
+ src/main/java/FileIO/FileIO.java,a\5\a533e5da865b808d8a4cf58098f40a2fe1d3ad5f
+Y
+)src/main/java/Algorithm/AlgorithmBfs.java,5\c\5cb2c967327441616e37dd73fc59816a454987fc
+]
+-src/test/java/Algorithm/AlgorithmBfsTest.java,2\1\2134fa932a36fdfb7e9acde031d8453d69ab6cde
+S
+#src/main/java/GUI/MazeRenderer.java,f\4\f46d359ba2a13c2b8290c14da00a2fef79f5ec52
+8
+maze.txt,1\c\1cf6a989a03e467a5ab301dbd207575b7081dce3
+T
+$src/main/java/GUI/MazeUtilities.java,0\3\0314dddd713e9b6a5d90672fe67e9f1e841d48ca
+Y
+)src/main/java/Algorithm/AlgorithmDfs.java,a\4\a4b3680cea1db331e61c79d94445da10e3681280
+]
+-src/test/java/Algorithm/AlgorithmDfsTest.java,7\3\732e300a2990b18a80cf3d52bbee2299797e3a9a

@@ -1,0 +1,16 @@
+
+d
+java:S1226k"GIntroduce a new variable instead of reusing the parameter "currentCol".(šÁÅû8Å Åü1
+Y	java:S107C"=Method has 12 parameters, which is greater than 7 authorized.(¿Ü„Ã8Û Åü1
+Y	java:S107M"=Method has 14 parameters, which is greater than 7 authorized.(‚¯Ğİ8Û Åü1
+X	java:S107_"<Method has 9 parameters, which is greater than 7 authorized.(©¦Ë‘8Ü Åü1
+g
+java:S1481!"+Remove this unused "fileId" local variable.(¾Ê´›J$001c67e7-9119-4fb0-b6bf-3acbaaefa566
+g
+java:S1481""+Remove this unused "escape" local variable.(Ä„Œ¹J$ef8acff9-3ce7-42b0-a983-7c43fef89ab1
+H
+java:S1172M"+Remove this unused method parameter "path".(‚¯Ğİ8ì Åü1
+`
+java:S1854l">Remove this useless assignment to local variable "currentRow".(šˆö–üÿÿÿÿ8‹ Åü1
+[
+java:S1854k">Remove this useless assignment to local variable "currentCol".(šÁÅû8‹ Åü1

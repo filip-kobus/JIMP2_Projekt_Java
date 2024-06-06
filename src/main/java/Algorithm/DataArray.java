@@ -47,9 +47,9 @@ public class DataArray {
     }
 
     public synchronized void setAsVisited(Point point) {
-        if (point.equalCoordinates(entry)) {
+        if (point.equals(entry)) {
             this.array[point.getX()][point.getY()] = Point.IS_ENTRY;
-        } else if (point.equalCoordinates(exit)) {
+        } else if (point.equals(exit)) {
             this.array[point.getX()][point.getY()] = Point.IS_EXIT;
         } else {
             this.array[point.getX()][point.getY()] = Point.IS_VISITED;

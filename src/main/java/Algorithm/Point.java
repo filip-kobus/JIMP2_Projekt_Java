@@ -4,8 +4,6 @@ import java.util.Objects;
 
 public class Point {
 
-
-
     private int x;
     private int y;
     private int type;
@@ -84,11 +82,6 @@ public class Point {
         point.setType(IS_VISITED);
         point.setParent(this); // Ustawiamy parent jako bieżący punkt
         return point;
-    }
-
-
-    public boolean equalCoordinates(Point point2) {
-        return this.getX() == point2.getX() && this.getY() == point2.getY();
     }
 
     @Override
