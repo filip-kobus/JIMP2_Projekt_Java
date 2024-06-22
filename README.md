@@ -40,6 +40,8 @@ To install and run this project, follow these steps:
     ```sh
     java -cp bin Main
      ```
+   
+Alternatively, you can open the project in an IDE such as IntelliJ IDEA or Eclipse and run the `Main` class or launch the jar file located in the in main directory.
 
 ## Usage
 1. Launch the application by running the `Main` class.
