@@ -10,8 +10,8 @@ public class DataArray {
     int width;
     int height;
 
-    public static final int IS_UNUSED_PATH = 7; // Dodajemy nowy stan dla nieużywanej ścieżki
-    public static final int IS_PATH = 6; // Dodajemy nowy stan dla ścieżki
+    public static final int IS_UNUSED_PATH = 7; // Add a new state for unused path
+    public static final int IS_PATH = 6; // Add a new state for path
 
 
     public DataArray(int columns, int rows) {
@@ -24,9 +24,9 @@ public class DataArray {
         if (point.getType() == Point.IS_ENTRY) {
             this.entry = point;
         } else if (point.getType() == Point.IS_EXIT) {
-            this.exit = point;
+            exit = point;
         }
-        this.array[point.getX()][point.getY()] = point.getType();
+        array[point.getX()][point.getY()] = point.getType();
     }
 
 
@@ -61,11 +61,11 @@ public class DataArray {
     }
 
     public synchronized void setAsUnusedPath(Point point) {
-        this.array[point.getX()][point.getY()] = IS_UNUSED_PATH; // Ustawiamy jako nieużywaną ścieżkę
+        this.array[point.getX()][point.getY()] = IS_UNUSED_PATH; // We set the path as unused
     }
 
     public synchronized void setAsExit(Point point) {
-        this.array[point.getX()][point.getY()] = Point.IS_EXIT; // Ustawiamy jako wyjście
+        this.array[point.getX()][point.getY()] = Point.IS_EXIT; // We set the exit
     }
 
     public synchronized boolean isExit(Point point) {
@@ -81,7 +81,7 @@ public class DataArray {
         }
     }
 
-    // Dodane metody dostępu
+    // Adding getters and setters
     public synchronized int getHeight() {
         return height;
     }
@@ -127,7 +127,7 @@ public class DataArray {
         }
     }
 
-    // Metoda rysująca labirynt na obrazie
+    // Method to convert the matrix to an image
     public BufferedImage toBufferedImage(int cellSize) {
         int imgWidth = width * cellSize;
         int imgHeight = height * cellSize;
@@ -140,10 +140,10 @@ public class DataArray {
                     case Point.IS_WALL -> g2d.setColor(Color.GRAY);
                     case Point.IS_ENTRY -> g2d.setColor(Color.GREEN);
                     case Point.IS_EXIT -> g2d.setColor(Color.RED);
-                    case IS_PATH -> g2d.setColor(Color.BLUE); // Ścieżka
-                    case IS_UNUSED_PATH -> g2d.setColor(Color.WHITE); // Nieużywana ścieżka
+                    case IS_PATH -> g2d.setColor(Color.BLUE); // Path
+                    case IS_UNUSED_PATH -> g2d.setColor(Color.WHITE); // Unused path
                     case Point.IS_VISITED -> g2d.setColor(Color.WHITE); //
-                    default -> g2d.setColor(Color.WHITE); // Puste miejsce
+                    default -> g2d.setColor(Color.WHITE); // Blank space
                 }
                 g2d.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
             }

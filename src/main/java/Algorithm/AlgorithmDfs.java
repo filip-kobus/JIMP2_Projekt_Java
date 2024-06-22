@@ -21,13 +21,13 @@ public class AlgorithmDfs {
 
     public boolean makeMove() {
         if (stack.isEmpty()) {
-            return true; // Brak rozwiązania
+            return true; // No more moves
         }
 
         Point current = stack.peek();
 
         if (dataArray.isExit(current)) {
-           // Wyjście znalezione
+           // Exit found
             return true;
         }
 
@@ -45,15 +45,15 @@ public class AlgorithmDfs {
                 dataArray.setAsVisited(neighbor);
                 lastMove = neighbor;
                 isMovingBack = false;
-                return false; // Kontynuuj przeszukiwanie
+                return false; // Continue searching
             }
         }
 
-        // Jeśli nie ma gdzie dalej iść, wróć do poprzedniego punktu
+        // If no valid moves, move back
         stack.pop();
         isMovingBack = true;
         lastMove = current;
-        return false; // Kontynuuj przeszukiwanie
+        return false; // Continue searching
     }
 
     private boolean isValidMove(Point point) {

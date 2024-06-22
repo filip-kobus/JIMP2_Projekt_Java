@@ -12,18 +12,18 @@ import java.io.File;
 import java.io.IOException;
 
 public class MainGuiPanel {
-    private MazeRenderer mazeRenderer; // Labirynt
+    private MazeRenderer mazeRenderer; // Maze
     private JFrame window;
     private JMenuBar menuBar;
     private JScrollPane scrollPane; // Scroll panel
 
-    private DataArray dataArray; // Dodajemy pole na obiekt DataArray
+    private DataArray dataArray; // DataArray
 
 
     private static final double ZOOM_IN_FACTOR = 1.1;
     private static final double ZOOM_OUT_FACTOR = 0.9;
 
-    // Metoda uruchamiająca GUI
+    // Method of creating the main panel
     public void run() {
         CreateMainPanel();
         CreateMazePanel();
@@ -32,13 +32,13 @@ public class MainGuiPanel {
         createOptionsBar();
 
         JTabbedPane tabPanel = new JTabbedPane();
-        tabPanel.addTab("Labirynt", scrollPane);
+        tabPanel.addTab("Maze", scrollPane);
         window.add(tabPanel, BorderLayout.CENTER);
         window.setJMenuBar(menuBar);
         window.setVisible(true);
     }
 
-    // Metoda tworząca główny panel
+    // Method of creating the main panel
     public void CreateMainPanel() {
         window = new JFrame("Maze Solver - Kobus&Dutkiewicz");
         window.setIconImage(new ImageIcon("src/gallery/logo.png").getImage());
@@ -54,20 +54,20 @@ public class MainGuiPanel {
         });
     }
 
-    // Metoda tworząca panel z labiryntem
+    // Method of creating the maze panel
     public void CreateMazePanel() {
-        mazeRenderer = new MazeRenderer(null); // Tworzenie labiryntu
-        JPanel mazePanel = mazeRenderer.createMazePanel(); // Tworzenie panelu z labiryntem
+        mazeRenderer = new MazeRenderer(null); // Creating a maze renderer
+        JPanel mazePanel = mazeRenderer.createMazePanel();
 
-        // Dodanie listenerów do panelu
+        // Adding a mouse wheel listener
         attachMouseWheelListener(mazePanel);
         attachMouseListener(mazePanel);
 
-        // Konfiguracja scroll panelu
+        // Adding a scroll panel
         configureScrollPane(mazePanel);
     }
 
-    // Metoda obsługująca scroll myszki
+    // Method of adding a mouse wheel listener for zooming
     private void attachMouseWheelListener(JPanel mazePanel) {
         mazePanel.addMouseWheelListener(e -> {
             double zoomFactor = mazeRenderer.getZoomFactor();
@@ -77,7 +77,7 @@ public class MainGuiPanel {
         });
     }
 
-    // Metoda obsługująca kliknięcie myszką
+    // Method of adding a mouse listener for selecting a cell
     private void attachMouseListener(JPanel mazePanel) {
         mazePanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -95,19 +95,19 @@ public class MainGuiPanel {
                 int offsetX = (panelWidth - scaledWidth) / 2;
                 int offsetY = (panelHeight - scaledHeight) / 2;
 
-                // Sprawdzenie czy kliknięto w obszar labiryntu
+                // Check if the click is within the maze
                 if (x >= offsetX && x < offsetX + scaledWidth && y >= offsetY && y < offsetY + scaledHeight) {
                     int imageX = (int) ((x - offsetX) / (mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor()));
                     int imageY = (int) ((y - offsetY) / (mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor()));
 
-                    // Obsługa kliknięcia w komórkę labiryntu
+                    // Handle the cell selection
                     MazeUtilities.handleMazeCellSelection(mazeRenderer, imageX, imageY, window);
                 }
             }
         });
     }
 
-    // Metoda konfigurująca scroll panel
+    // Method of configuring the scroll panel
     private void configureScrollPane(JPanel mazePanel) {
         scrollPane = new JScrollPane(mazePanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -116,51 +116,51 @@ public class MainGuiPanel {
         scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
     }
 
-    // Metoda aktualizująca zoom
+    // Method of updating the zoom
     private void updateZoom() {
         if (mazeRenderer != null && mazeRenderer.getMazeImage() != null) {
             int newWidth = (int) (mazeRenderer.getMazeImage().getWidth() * mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor());
             int newHeight = (int) (mazeRenderer.getMazeImage().getHeight() * mazeRenderer.getInitialZoomFactor() * mazeRenderer.getZoomFactor());
 
-            // Ustawienie nowych wymiarów panelu z labiryntem
+            // Setting the new size of the maze panel
             mazeRenderer.getMazePanel().setPreferredSize(new Dimension(newWidth, newHeight));
             mazeRenderer.getMazePanel().revalidate();
 
-            // Aktualizacja scroll panelu
+            // Updating the scroll pane
             scrollPane.revalidate();
             scrollPane.repaint();
         }
     }
 
-    // Metoda tworząca pasek z plikami
+    // Method of creating the file reader bar
     public void CreateFileReaderBar() {
         menuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("Plik");
+        JMenu fileMenu = new JMenu("File");
 
-        // Elementy menu
-        JMenuItem openItem = new JMenuItem("Otwórz labirynt");
-        JMenuItem saveItem = new JMenuItem("Zapisz labirynt (txt)");
-        JMenuItem saveImageItem = new JMenuItem("Zapisz obraz labiryntu");
+        // Elements of menu
+        JMenuItem openItem = new JMenuItem("Open maze");
+        JMenuItem saveItem = new JMenuItem("Save maze (txt)");
+        JMenuItem saveImageItem = new JMenuItem("Save maze (image)");
 
-        // Dołączanie akcji do otwierania pliku z labiryntem
+        // Adding actions to the menu
         openItem.addActionListener(e -> openMaze());
 
-        // Dołączanie akcji do zapisywania labiryntu jako pliku tekstowego
+        // Adding actions to save the maze as text
         saveItem.addActionListener(e -> FileIO.saveMazeAsText(mazeRenderer.getMazeImage(), window));
 
-        // Dołączanie akcji do zapisywania labiryntu jako obrazu
+        // Adding actions to save the maze as an image
         saveImageItem.addActionListener(e -> FileIO.saveMazeAsImage(dataArray, window));
 
-        // Dodawanie pozycji do menu pliku
+        // Adding elements to the menu
         fileMenu.add(openItem);
         fileMenu.add(saveItem);
         fileMenu.add(saveImageItem);
 
-        // Dodawanie menu pliku do paska menu
+        // Adding the menu to the menu bar
         menuBar.add(fileMenu);
     }
 
-    // Metoda otwierająca labirynt
+    // Method of opening the maze
     private void openMaze() {
         try {
             File mazeFile = FileIO.openMazeFile(window);
@@ -173,11 +173,11 @@ public class MainGuiPanel {
                 MazeUtilities.checkForEntranceAndExit(mazeRenderer, window);
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(window, "Nie udało się odczytać pliku: " + ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(window, "The maze could not be loaded: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // Metoda tworząca przyciski do zoomowania
+    // Method of creating the zoom controls
     private void createZoomControls() {
         JPanel zoomPanel = new JPanel(new GridLayout(2, 1));
         JButton zoomInButton = new JButton("+");
@@ -198,7 +198,7 @@ public class MainGuiPanel {
         window.add(zoomPanel, BorderLayout.EAST);
     }
 
-    // Metoda dopasowująca labirynt do okna
+    // Method of fitting the maze to the window
     private void fitMazeToWindow() {
         if (mazeRenderer != null && mazeRenderer.getMazeImage() != null) {
             int windowWidth = scrollPane.getViewport().getWidth();
@@ -207,37 +207,37 @@ public class MainGuiPanel {
             double windowRatio = (double) windowWidth / windowHeight;
             double imageRatio = (double) mazeRenderer.getMazeImage().getWidth() / mazeRenderer.getMazeImage().getHeight();
 
-            // Obliczenie początkowego zoomu na podstawie proporcji okna i obrazu
+            // Calculate the initial zoom factor
             double initialZoomFactor = (windowRatio > imageRatio) ? (double) windowHeight / mazeRenderer.getMazeImage().getHeight()
                     : (double) windowWidth / mazeRenderer.getMazeImage().getWidth();
 
             mazeRenderer.setInitialZoomFactor(initialZoomFactor);
-            mazeRenderer.setZoomFactor(1.0); // Resetowanie zoomu
-            updateZoom(); // Aktualizacja zoomu
+            mazeRenderer.setZoomFactor(1.0);
+            updateZoom();
         }
     }
 
-    // Metoda tworząca pasek opcji
+    // Method of creating the options bar
     private void createOptionsBar() {
-        JMenu optionsMenu = new JMenu("Opcje");
+        JMenu optionsMenu = new JMenu("Options");
 
-        JMenuItem setEntranceExitItem = new JMenuItem("Ustaw wejście i wyjście");
-        JMenuItem solveMazeItem = new JMenuItem("Znajdź najkrótszą ścieżkę(BFS)");
-        JMenuItem visualizeMazeItem = new JMenuItem("Wizualizuj szukanie ścieżki(DFS)");
-        JMenuItem resetPathsItem = new JMenuItem("Resetuj ścieżki");
-        JMenuItem stopVisualizationItem = new JMenuItem("Przerwij wizualizację");
+        JMenuItem setEntranceExitItem = new JMenuItem("Set entrance and exit");
+        JMenuItem solveMazeItem = new JMenuItem("Find the shortest path(BFS)");
+        JMenuItem visualizeMazeItem = new JMenuItem("Visualize finding path(DFS)");
+        JMenuItem resetPathsItem = new JMenuItem("Reset paths");
+        JMenuItem stopVisualizationItem = new JMenuItem("Stop visualization");
         stopVisualizationItem.setVisible(false); // Ukryj na początku
 
-        String erorrMessage = "Najpierw załaduj labirynt.";
+        String erorrMessage = "There is no maze to be solved. Please open a maze file.";
 
         setEntranceExitItem.addActionListener(e -> {
             if (mazeRenderer.getMazeImage() != null) {
                 MazeUtilities.setSelectedState(1);
                 MazeUtilities.resetEntranceAndExit(mazeRenderer, window);
 
-                JOptionPane.showMessageDialog(window, "Wybierz punkt początkowy na labiryncie.", "Ustaw wejście i wyjście", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(window, "Select the start of the maze", "Set entrance and exit", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -246,40 +246,40 @@ public class MainGuiPanel {
             if (dataArray != null) {
                 mazeRenderer.solveMazeWithBfs(dataArray);
             } else {
-                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         visualizeMazeItem.addActionListener(e -> {
             if (dataArray != null) {
-                stopVisualizationItem.setVisible(true); // Pokaż opcję przerwania
+                stopVisualizationItem.setVisible(true);
                 mazeRenderer.visualizeDfs(dataArray);
 
             } else {
-                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         resetPathsItem.addActionListener(e -> {
             if (dataArray != null) {
-                mazeRenderer.stopVisualization(); // Zatrzymaj bieżącą wizualizację
+                mazeRenderer.stopVisualization(); // Stop the visualization
                 mazeRenderer.resetPaths(dataArray);
-                stopVisualizationItem.setVisible(false); // Ukryj opcję przerwania
+                stopVisualizationItem.setVisible(false); // Hide the stop option
             } else {
-                JOptionPane.showMessageDialog(window, erorrMessage, "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, erorrMessage, "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         stopVisualizationItem.addActionListener(e -> {
             mazeRenderer.stopVisualization();
-            stopVisualizationItem.setVisible(false); // Ukryj opcję przerwania
+            stopVisualizationItem.setVisible(false); // Hide the stop option
         });
 
         optionsMenu.add(setEntranceExitItem);
         optionsMenu.add(solveMazeItem);
         optionsMenu.add(visualizeMazeItem);
         optionsMenu.add(resetPathsItem);
-        optionsMenu.add(stopVisualizationItem); // Dodaj przycisk przerwania
+        optionsMenu.add(stopVisualizationItem); // Add the stop option
 
         menuBar.add(optionsMenu);
     }

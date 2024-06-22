@@ -7,7 +7,7 @@ public class Point {
     private int x;
     private int y;
     private int type;
-    private Point parent; // Dodajemy pole parent
+    private Point parent; // Parent for tracing the path
 
     public static final int IS_WALL = 0;
     public static final int IS_SPACE = 1;
@@ -80,7 +80,7 @@ public class Point {
         int currentY = this.y + yDiff;
         Point point = new Point(currentX, currentY);
         point.setType(IS_VISITED);
-        point.setParent(this); // Ustawiamy parent jako bieżący punkt
+        point.setParent(this); // Setting the parent for tracing the path
         return point;
     }
 

@@ -17,7 +17,7 @@ public class AlgorithmBfs {
         this.exit = dataArray.getExit();
         this.currCell = this.entry;
         this.queue.add(this.entry);
-        this.dataArray.setAsVisited(this.entry); // Oznaczamy punkt startowy jako odwiedzony
+        this.dataArray.setAsVisited(this.entry); // We set the entry as visited
     }
 
     public boolean runAlgorithm() {
@@ -26,8 +26,8 @@ public class AlgorithmBfs {
 
             if (currCell.equals(exit)) {
                 found = true;
-                markPath(currCell); // Zaznaczamy ścieżkę od wyjścia do wejścia
-                dataArray.setAsExit(currCell); // Oznaczamy wyjście jako wyjście
+                markPath(currCell); // We mark the path
+                dataArray.setAsExit(currCell); // mark the exit
                 continue;
             }
 
@@ -53,7 +53,7 @@ public class AlgorithmBfs {
             if (isValidMove(possiblePoint)) {
                 queue.add(possiblePoint);
                 dataArray.setAsVisited(possiblePoint);
-                possiblePoint.setParent(point); // Ustawiamy rodzica, aby śledzić ścieżkę
+                possiblePoint.setParent(point); // setting the parent for tracing the path
             }
         }
     }
@@ -74,7 +74,7 @@ public class AlgorithmBfs {
         Point step = end;
         while (step != null) {
             if (!step.equals(entry) && !step.equals(exit)) {
-                dataArray.setAsPath(step); // Oznaczamy ścieżkę
+                dataArray.setAsPath(step); // We mark the path
             }
             step = step.getParent();
         }

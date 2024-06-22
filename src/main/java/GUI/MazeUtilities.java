@@ -12,47 +12,47 @@ public class MazeUtilities {
     private MazeUtilities(){
     }
 
-    private static int selectedState = 0; // 0 - brak wyboru, 1 - wejście, 2 - wyjście
+    private static int selectedState = 0; // 0 - normal, 1 - entry, 2 - exit
 
-    // Ustawia stan wyboru
+    // Set selected state
     public static void setSelectedState(int state) {
         selectedState = state;
     }
 
-    // Sprawdza, czy punkt (x, y) jest na krawędzi labiryntu
+    // Check if the cell is an edge
     public static boolean isEdge(int x, int y, int width, int height) {
         return x == 0 || x == width - 1 || y == 0 || y == height - 1;
     }
 
-    // Obsługuje wybór komórki labiryntu
+    // Handle maze cell selection
     public static void handleMazeCellSelection(MazeRenderer mazeRenderer, int imageX, int imageY, JFrame window) {
         DataArray dataArray = mazeRenderer.getDataArray();
-        if (selectedState != 0) { // Jeśli wybieramy wejście lub wyjście
+        if (selectedState != 0) { // If we are in the entry or exit selection mode
             if (isEdge(imageX, imageY, mazeRenderer.getMazeImage().getWidth(), mazeRenderer.getMazeImage().getHeight())) {
 
-                mazeRenderer.paintCell(imageX, imageY, selectedState); // Ustawia komórkę labiryntu
+                mazeRenderer.paintCell(imageX, imageY, selectedState); // Paint the cell
 
                 Point point = new Point(imageX, imageY);
-                if (selectedState == 1) { // Jeśli wybrano punkt wejściowy
+                if (selectedState == 1) { // If we are in the entry selection mode
                     point.setType(Point.IS_ENTRY);
                     dataArray.setNewEntry(point);
-                    JOptionPane.showMessageDialog(window, "Wybierz punkt końcowy na krawędzi labiryntu.", "Dalej", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(window, "Select the exit in the narrow points of the maze.", "Next", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(2);
                 } else if (selectedState == 2) { // Jeśli wybrano punkt wyjściowy
                     point.setType(Point.IS_EXIT);
                     dataArray.setNewExit(point);
-                    JOptionPane.showMessageDialog(window, "Punkt początkowy i końcowy zostały wybrane", "Informacja", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(window, "Entrance and exit points were set", "Info", JOptionPane.INFORMATION_MESSAGE);
                     setSelectedState(0);
                 }
             } else {
-                JOptionPane.showMessageDialog(window, "Wejście i wyjście można ustawiać tylko na krawędziach labiryntu.", "Błąd", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(window, "Entrance and exit must be put on narrow points of the maze.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(window, "Kliknięto komórkę: (" + imageY + ", " + imageX + ")", "Informacja", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(window, "The cell: (" + imageY + ", " + imageX + ")" + "was clicked.", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    // Sprawdza obecność wejścia i wyjścia w labiryncie
+    // Check for entrance and exit in the maze
     public static void checkForEntranceAndExit(MazeRenderer mazeRenderer, JFrame window) {
         BufferedImage image = mazeRenderer.getMazeImage();
         if (image == null) {
@@ -70,7 +70,7 @@ public class MazeUtilities {
         }
     }
 
-    // Znajduje wejście i wyjście w labiryncie
+    // Find entrance and exit in the maze
     public static boolean[] findEntranceAndExit(BufferedImage image) {
         boolean foundP = false;
         boolean foundK = false;
@@ -85,34 +85,34 @@ public class MazeUtilities {
         return new boolean[]{foundP, foundK};
     }
 
-    // Pokazuje ostrzeżenie, jeśli brakuje wejścia lub wyjścia
+    // Shows warning about missing entrance or exit
     private static void showWarning(JFrame window) {
-        JOptionPane.showMessageDialog(window, "Brak punktu wejścia lub wyjścia. Wybierz je klikając na ścianę.", "Uwaga", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(window, "There is no entrance or exit. Please select it by clicking on the wall", "Warining", JOptionPane.WARNING_MESSAGE);
     }
 
-    // Obsługuje sytuację, gdy nie znaleziono obrazu labiryntu
+    // Handing stituation when there is no image
     private static void handleNoImage(JFrame window) {
-        JOptionPane.showMessageDialog(window, "Nie znaleziono obrazu labiryntu.", "Błąd", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(window, "There is no picture of the maze", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    // Resetuje punkty wejścia i wyjścia w labiryncie
+    // Reset entrance and exit
     public static void resetEntranceAndExit(MazeRenderer mazeRenderer, JFrame window) {
         BufferedImage image = mazeRenderer.getMazeImage();
         DataArray dataArray = mazeRenderer.getDataArray();
         if (image != null && dataArray != null) {
-            dataArray.resetEntrances(); // Resetujemy wejścia i wyjścia w DataArray
+            dataArray.resetEntrances(); // Resetting the entrances in the data array
             for (int y = 0; y < image.getHeight(); y++) {
                 for (int x = 0; x < image.getWidth(); x++) {
                     if (new Color(image.getRGB(x, y)).equals(Color.GREEN) || new Color(image.getRGB(x, y)).equals(Color.RED)) {
-                        image.setRGB(x, y, Color.GRAY.getRGB()); // Zmienia kolor na szary (ściana)
+                        image.setRGB(x, y, Color.GRAY.getRGB()); //Changing the color of the entrance and exit to gray
                     }
                 }
             }
-            mazeRenderer.setMazeImage(image); // Aktualizuje obraz labiryntu
-            mazeRenderer.getMazePanel().repaint(); // Odświeża panel z labiryntem
-            JOptionPane.showMessageDialog(window, "Wejście i wyjście zostały zresetowane jako ściany.", "Reset", JOptionPane.INFORMATION_MESSAGE);
+            mazeRenderer.setMazeImage(image); // Updating the image
+            mazeRenderer.getMazePanel().repaint();
+            JOptionPane.showMessageDialog(window, "Entrance and exit points were set as walls.", "Reset", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(window, "Najpierw załaduj labirynt.", "Błąd", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(window, "First load the maze.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
