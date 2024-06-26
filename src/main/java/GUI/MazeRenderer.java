@@ -115,7 +115,7 @@ public class MazeRenderer {
                 // Coloring the start and the exit
                 paintCell(dataArray.getEntry().getX(), dataArray.getEntry().getY(), 1);
                 paintCell(dataArray.getExit().getX(), dataArray.getExit().getY(), 2); // Koniec na czerwono
-                JOptionPane.showMessageDialog(null, "Ścieżka została znaleziona!", "BFS Solver", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "The path was found!", "BFS Solver", JOptionPane.INFORMATION_MESSAGE);
             }
         };
 
