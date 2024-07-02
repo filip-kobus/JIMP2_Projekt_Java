@@ -20,8 +20,10 @@ This project is a Java-based application designed to open and solve mazes using 
 - 🖥️ **Visualize the maze generation and solving processes.**
 
 ## Visuals
-![Main GUI](./src/gallery/Screenshot.png)
-![Maze Generation](./src/gallery/GIF_Visualisation.gif)
+<div style="display: flex; justify-content: space-between;">
+    <img src="./src/gallery/Screenshot.png" alt="Main GUI" style="width: 48%;"/>
+    <img src="./src/gallery/GIF_Visualisation.gif" alt="Maze Generation" style="width: 48%;"/>
+</div>
 
 ## Installation
 To install and run this project, follow these steps:
