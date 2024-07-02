@@ -4,6 +4,7 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Features](#features)
+3. [Visuals](#visuals)
 3. [Installation](#installation)
 4. [Usage](#usage)
 5. [Classes Overview](#classes-overview)
@@ -14,9 +15,13 @@
 This project is a Java-based application designed to open and solve mazes using various algorithms. It provides a graphical user interface to visualize the maze and the solving process. The application is structured to be modular and extensible, allowing easy integration of new maze generation and solving algorithms.
 
 ## Features
-- Open maze from text or binary files.
-- Solve mazes using various algorithms (BFS and DFS).
-- Visualize the maze generation and solving processes.
+- 🗂️ **Open maze from text or binary files.**
+- 🤖 **Solve mazes using various algorithms (BFS and DFS).**
+- 🖥️ **Visualize the maze generation and solving processes.**
+
+## Visuals
+![Main GUI](./src/gallery/Screenshot.png)
+![Maze Generation](./src/gallery/GIF_Visualisation.gif)
 
 ## Installation
 To install and run this project, follow these steps:
@@ -48,6 +53,36 @@ Alternatively, you can open the project in an IDE such as IntelliJ IDEA or Eclip
 2. Use the graphical user interface to generate and solve mazes.
 3. Select the desired algorithm for maze generation and solving from the interface.
 
+
+## Project Structure
+```plaintext
+maze-generator-and-solver/
+├── bin/
+│   └── ... (compiled classes)
+├── src/
+│   ├── gallery/
+│   │   └── logo.png
+│   ├── main/
+│       ├── java/
+│           ├── Algorithm/
+│           │   ├── AlgorithmBfs.java
+│           │   ├── AlgorithmDfs.java
+│           │   ├── Binary.java
+│           │   ├── DataArray.java
+│           │   └── Point.java
+│           ├── FileIO/
+│           │   └── FileIO.java
+│           ├── GUI/
+│           │   ├── MainGuiPanel.java
+│           │   ├── MazeRenderer.java
+│           │   └── MazeUtilities.java
+│           └── Main.java
+├── Dokumentacja/
+│   ├── Documentation.pdf
+│   └── JIMP2_Java_Document_English.pdf
+├── JIMP2_Projekt_Java.jar  # Compiled JAR file located in the root directory
+└── LICENSE
+````
 ## Classes Overview
 - `Main`: The entry point of the application.
 - `MazeRenderer`: Handles the graphical representation of the maze.
@@ -64,5 +99,10 @@ Alternatively, you can open the project in an IDE such as IntelliJ IDEA or Eclip
 
 To find detailed information about the classes and methods used in this project, refer to the documentation located in 'Dokumentacja' directory.
 [Documentation.pdf](./Dokumentacja/JIMP2_Java_Document_English.pdf)
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
 
 
